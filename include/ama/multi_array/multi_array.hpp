@@ -34,6 +34,7 @@
 
 #include <ama/multi_array/config.hpp>
 #include <ama/multi_array/detail/index_runtime.hpp>
+#include <ama/multi_array/detail/multi_index.hpp>
 #include <ama/multi_array/detail/size.hpp>
 
 #include <boost/mpl/bool.hpp>
@@ -49,6 +50,9 @@ namespace ama
 
   template <typename T, size_t D, size_t O>
   class multi_array
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+      : public ::ama::multi_array_::multi_index< multi_array<T, D, O>, T, D, O >
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
   {
   public:
     typedef T value_type;
@@ -103,6 +107,11 @@ namespace ama
       return m_data.at(index::value);
     }
 
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+  public:
+    using ::ama::multi_array_::multi_index< multi_array<T, D, O>, T, D, O >::operator();
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
+
   public:
     /* the size of storage */
     size_t size() const { return m_size; }
@@ -151,6 +160,11 @@ namespace ama
       /* check */
       BOOST_MPL_ASSERT((mpl::and_<range_,size_>));
     }
+
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+    /* to access to m_data */
+    friend class ::ama::multi_array_::multi_index< multi_array<T, D, O>, T, D, O >;
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
   };
 
 

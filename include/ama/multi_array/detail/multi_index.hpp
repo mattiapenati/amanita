@@ -26,71 +26,99 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_MULTI_ARRAY_DETAIL_INDEX_COMPILETIME_HPP
-#define AMA_MULTI_ARRAY_DETAIL_INDEX_COMPILETIME_HPP 1
+#ifndef AMA_MULTI_ARRAY_DETAIL_MULTI_INDEX_HPP
+#define AMA_MULTI_ARRAY_DETAIL_MULTI_INDEX_HPP 1
 
 #include <ama/common/size_t.hpp>
 #include <ama/multi_array/config.hpp>
 
 #ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
 
-#include <boost/assert.hpp>
+#include <ama/multi_array/detail/index_compiletime.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/comma_if.hpp>
-#include <boost/preprocessor/dec.hpp>
-#include <boost/preprocessor/if.hpp>
 #include <boost/preprocessor/inc.hpp>
 #include <boost/preprocessor/repeat.hpp>
 
-#define AMA_MA_IC_CONCAT_COMMA(z, n, data) \
+#define AMA_MA_MI_CONCAT_COMMA(z, n, data) \
   BOOST_PP_COMMA_IF(n) BOOST_PP_CAT(data, n)
 
-#define AMA_MA_IC_ARGUMENT(n) \
-  BOOST_PP_REPEAT(n, AMA_MA_IC_CONCAT_COMMA, size_t const & I)
+#define AMA_MA_MI_ARGUMENT(n) \
+  BOOST_PP_REPEAT(n, AMA_MA_MI_CONCAT_COMMA, size_t const & I)
 
-#define AMA_MA_IC_INDEX(n) \
-  BOOST_PP_CAT(I, BOOST_PP_DEC(n))
+#define AMA_MA_MI_CALL(n) \
+  BOOST_PP_REPEAT(n, AMA_MA_MI_CONCAT_COMMA, I)
 
-#define AMA_MA_IC_CHECK(D, n) \
-  BOOST_ASSERT((AMA_MA_IC_INDEX(n) < D))
-
-#define AMA_MA_IC_PREV(D, n) \
-  index_compiletime<D>( BOOST_PP_REPEAT(BOOST_PP_DEC(n), AMA_MA_IC_CONCAT_COMMA, I) )
-
-#define AMA_MA_IC_RETURN(D, n) \
-  AMA_MA_IC_CHECK(D, n); \
-  return (D * AMA_MA_IC_PREV(D, n)) + AMA_MA_IC_INDEX(n)
-
-#define AMA_MA_IC_INDEX_COMPILE(n) \
-  template <size_t D> \
-  size_t index_compiletime( AMA_MA_IC_ARGUMENT(n) ) \
+#define AMA_MA_MI_SPECIALIZATION(n) \
+  template <typename DERIVED, typename T, size_t D> \
+  class multi_index<DERIVED, T, D, n> \
   { \
-    BOOST_PP_IF(n, AMA_MA_IC_RETURN(D, n), return 0); \
-  }
+  public: \
+    typedef T value_type; \
+    \
+    typedef T & reference; \
+    typedef T & const_reference; \
+    \
+  protected: \
+    typedef multi_index<DERIVED, T, D, n> base_type; \
+    typedef DERIVED derived_type; \
+    \
+  public: \
+    derived_type & derived() { return *static_cast<derived_type *>(this); } \
+    derived_type const & derived() const { return *static_cast<derived_type const *>(this); } \
+    \
+  public: \
+    reference operator()( AMA_MA_MI_ARGUMENT(n) ) \
+    { \
+      size_t const i = ::ama::multi_array_::index_compiletime<D>( AMA_MA_MI_CALL(n) ); \
+      return derived().m_data.at(i); \
+    } \
+    \
+    const_reference operator()( AMA_MA_MI_ARGUMENT(n) ) const \
+    { \
+      size_t const i = ::ama::multi_array_::index_compiletime<D>( AMA_MA_MI_CALL(n) ); \
+      return derived().m_data.at(i); \
+    } \
+  };
 
-#define AMA_MA_IC_MACRO(z, n, data) \
-  AMA_MA_IC_INDEX_COMPILE(n)
+#define AMA_MA_MI_MACRO(z, n, data) \
+  AMA_MA_MI_SPECIALIZATION(n)
 
 namespace ama
 {
   namespace multi_array_
   {
 
+    template <typename DERIVED, typename T, size_t D, size_t O>
+    class multi_index
+    {
+    public:
+      typedef T value_type;
+
+      typedef T & reference;
+      typedef T & const_reference;
+
+    protected:
+      typedef multi_index<DERIVED, T, D, O> base_type;
+      typedef DERIVED derived_type;
+
+    public:
+      reference operator()();
+      const_reference operator()() const;
+    };
+
     BOOST_PP_REPEAT(
-        BOOST_PP_INC(AMA_MULTI_ARRAY_MAX_LINEAR_ACCESS), AMA_MA_IC_MACRO, )
+        BOOST_PP_INC(AMA_MULTI_ARRAY_MAX_LINEAR_ACCESS), AMA_MA_MI_MACRO, )
 
   }
 }
 
-#undef AMA_MA_IC_CONCAT_COMMA
-#undef AMA_MA_IC_ARGUMENT
-#undef AMA_MA_IC_INDEX
-#undef AMA_MA_IC_CHECK
-#undef AMA_MA_IC_PREV
-#undef AMA_MA_IC_RETURN
-#undef AMA_MA_IC_INDEX_COMPILE
-#undef AMA_MA_IC_MACRO
+#undef AMA_MA_MI_CONCAT_COMMA
+#undef AMA_MA_MI_ARGUMENT
+#undef AMA_MA_MI_CALL
+#undef AMA_MA_MI_SPECIALIZATION
+#undef AMA_MA_MI_MACRO
 
 #endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
 
-#endif /* AMA_MULTI_ARRAY_DETAIL_INDEX_COMPILETIME_HPP */
+#endif /* AMA_MULTI_ARRAY_DETAIL_MULTI_INDEX_HPP */
