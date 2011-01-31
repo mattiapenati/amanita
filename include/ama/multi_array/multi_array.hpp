@@ -168,6 +168,65 @@ namespace ama
   };
 
 
+  /* partial specialization for 0 order (empty) */
+  template <typename T, size_t D>
+  class multi_array<T, D, 0>
+  {
+  public:
+    typedef T value_type;
+
+    typedef T & reference;
+    typedef T const & const_reference;
+
+  public:
+    typedef ::boost::mpl::size_t<D> dimension_type;
+    typedef ::boost::mpl::size_t<0> order_type;
+
+  public:
+    /* default constructor */
+    explicit
+    multi_array(value_type const & value = value_type())
+        : m_data(value)
+    { }
+
+    /* copy constructor */
+    template <typename T2>
+    explicit
+    multi_array(multi_array<T2, D, 0> const & rhs)
+        : m_data(rhs.m_data)
+    { }
+
+  public:
+    /* copy operator */
+    template <typename T2>
+    multi_array & operator=(multi_array<T2, D, 0> const & rhs)
+    {
+      m_data = rhs.m_data;
+      return *this;
+    }
+
+  public:
+    /* cast operator */
+    operator value_type() { return m_data; }
+    operator value_type() const { return m_data; }
+
+  public:
+    /* the size of storage */
+    size_t size() const { return 1; }
+
+    /* check if the storage is empty */
+    bool empty() const { return false; }
+
+  public:
+    /* dimension and order of storage */
+    size_t dimension() const { return D; }
+    size_t order() const { return 0; }
+
+  protected:
+    value_type m_data;
+  };
+
+
   /* partial specialization for 0 dimension (empty) */
   template <typename T, size_t O>
   class multi_array<T, 0, O>
@@ -177,6 +236,10 @@ namespace ama
 
     typedef T & reference;
     typedef T const & const_reference;
+
+  public:
+    typedef ::boost::mpl::size_t<0> dimension_type;
+    typedef ::boost::mpl::size_t<O> order_type;
 
   public:
     /* the size of storage */
@@ -201,6 +264,10 @@ namespace ama
 
     typedef T & reference;
     typedef T const & const_reference;
+
+  public:
+    typedef ::boost::mpl::size_t<0> dimension_type;
+    typedef ::boost::mpl::size_t<0> order_type;
 
   public:
     /* the size of storage */
