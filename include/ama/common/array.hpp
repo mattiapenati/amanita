@@ -31,6 +31,7 @@
 
 #include <ama/common/size_t.hpp>
 #include <boost/array.hpp>
+#include <boost/static_assert.hpp>
 #include <algorithm>
 
 namespace ama
@@ -69,6 +70,24 @@ namespace ama
       std::copy(begin, end, this->begin());
     }
   };
+
+
+  /* the get function for static access to array */
+  template <size_t I, typename T, size_t N>
+  typename array<T, N>::reference
+  get(array<T,N> & a)
+  {
+    BOOST_STATIC_ASSERT((I < N));
+    return a.elems[I];
+  }
+
+  template <size_t I, typename T, size_t N>
+  typename array<T, N>::const_reference
+  get(array<T,N> const & a)
+  {
+    BOOST_STATIC_ASSERT((I < N));
+    return a.elems[I];
+  }
 
 }
 
