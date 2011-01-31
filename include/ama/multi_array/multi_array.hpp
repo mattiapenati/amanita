@@ -154,6 +154,7 @@ namespace ama
   };
 
 
+  /* partial specialization for 0 dimension (empty) */
   template <typename T, size_t O>
   class multi_array<T, 0, O>
   {
@@ -174,6 +175,30 @@ namespace ama
     /* dimension and order of storage */
     size_t dimension() const { return 0; }
     size_t order() const { return O; }
+  };
+
+
+  /* partial specialization for 0 dimension (empty) */
+  template <typename T>
+  class multi_array<T, 0, 0>
+  {
+  public:
+    typedef T value_type;
+
+    typedef T & reference;
+    typedef T const & const_reference;
+
+  public:
+    /* the size of storage */
+    size_t size() const { return 0; }
+
+    /* check if the storage is empty */
+    bool empty() const { return true; }
+
+  public:
+    /* dimension and order of storage */
+    size_t dimension() const { return 0; }
+    size_t order() const { return 0; }
   };
 
 }

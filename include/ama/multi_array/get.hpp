@@ -51,7 +51,7 @@
   AMA_MA_GET_TYPE(S, D, O)::const_reference
 
 #define AMA_MA_GET_DEFAULT_TEMPLATE(S,D,O) \
-  typename S BOOST_PP_COMMA() size_t D BOOST_PP_COMMA() size_t O
+  typename S BOOST_PP_COMMA() size_t D /* BOOST_PP_COMMA() size_t O */
 
 #define AMA_MA_CONCAT_COMMA(z, n, data) \
   BOOST_PP_COMMA_IF(n) BOOST_PP_CAT(data, n)
@@ -63,18 +63,18 @@
   BOOST_PP_REPEAT(n, AMA_MA_CONCAT_COMMA, I)
 
 #define AMA_MA_GET(n) \
-  template < AMA_MA_TEMPLATE(n) BOOST_PP_COMMA_IF(n) AMA_MA_GET_DEFAULT_TEMPLATE(S,D,O) > \
-  typename AMA_MA_GET_REFERENCE(S,D,O) \
-  get(AMA_MA_GET_TYPE(S,D,O) & ma) \
+  template < AMA_MA_TEMPLATE(n) BOOST_PP_COMMA_IF(n) AMA_MA_GET_DEFAULT_TEMPLATE(S,D,n) > \
+  typename AMA_MA_GET_REFERENCE(S,D,n) \
+  get(AMA_MA_GET_TYPE(S,D,n) & ma) \
   { \
     typedef ::boost::mpl::vector_c<size_t BOOST_PP_COMMA_IF(n) AMA_MA_LIST(n) > ilist; \
     return ma.template at<ilist>(); \
   }
 
 #define AMA_MA_GET_CONST(n) \
-  template < AMA_MA_TEMPLATE(n) BOOST_PP_COMMA_IF(n) AMA_MA_GET_DEFAULT_TEMPLATE(S,D,O) > \
-  typename AMA_MA_GET_CONST_REFERENCE(S,D,O) \
-  get(AMA_MA_GET_TYPE(S,D,O) const & ma) \
+  template < AMA_MA_TEMPLATE(n) BOOST_PP_COMMA_IF(n) AMA_MA_GET_DEFAULT_TEMPLATE(S,D,n) > \
+  typename AMA_MA_GET_CONST_REFERENCE(S,D,n) \
+  get(AMA_MA_GET_TYPE(S,D,n) const & ma) \
   { \
     typedef ::boost::mpl::vector_c<size_t BOOST_PP_COMMA_IF(n) AMA_MA_LIST(n) > ilist; \
     return ma.template at<ilist>(); \
