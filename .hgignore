@@ -1,0 +1,9 @@
+
+syntax: regexp
+^build$
+syntax: regexp
+^\.cproject$
+syntax: regexp
+^\.project$
+syntax: regexp
+^\.settings$
