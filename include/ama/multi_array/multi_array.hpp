@@ -32,6 +32,7 @@
 #include <ama/common/size_t.hpp>
 #include <ama/common/array.hpp>
 
+#include <ama/multi_array/config.hpp>
 #include <ama/multi_array/detail/index_runtime.hpp>
 #include <ama/multi_array/detail/size.hpp>
 
@@ -82,7 +83,7 @@ namespace ama
     }
 
   public:
-    /* get a component from a index list (Boost.MPL - Forward Sequence) */
+    /* get a component from a multi-index (Boost.MPL - Forward Sequence) */
     template <typename ILIST>
     reference at()
     {
@@ -92,7 +93,7 @@ namespace ama
       return m_data.at(index::value);
     }
 
-    /* get a component from a index list (Boost.MPL - Forward Sequence) */
+    /* get a component from a multi-index (Boost.MPL - Forward Sequence) */
     template <typename ILIST>
     const_reference at() const
     {
