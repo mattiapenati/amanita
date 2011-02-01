@@ -4,3 +4,4 @@ install(FILES ${ama}
 
 add_subdirectory(common)
 add_subdirectory(multi_array)
+add_subdirectory(tensor)
