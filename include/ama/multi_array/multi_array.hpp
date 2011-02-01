@@ -134,19 +134,16 @@ namespace ama
   protected:
     /* check a indeces list (Boost.MPL - Forward Sequence) */
     template <typename ILIST>
-    void rangecheck()
+    static void rangecheck()
     {
       namespace mpl = ::boost::mpl;
-
-      /* some alias */
-      typedef mpl::bool_<true> true_;
 
       typedef mpl::size_t<0> zero_;
 
       /* check each indeces */
       typedef typename mpl::fold<
             ILIST
-          , true_
+          , mpl::true_
           , mpl::and_<
                   mpl::_1
                 , mpl::less<mpl::_2,dimension_type>
