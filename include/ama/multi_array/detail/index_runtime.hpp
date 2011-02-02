@@ -29,29 +29,68 @@
 #ifndef AMA_MULTI_ARRAY_DETAIL_INDEX_RUNTIME_HPP
 #define AMA_MULTI_ARRAY_DETAIL_INDEX_RUNTIME_HPP 1
 
-#include <boost/mpl/arithmetic.hpp>
-#include <boost/mpl/fold.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/size_t.hpp>
+#include <ama/common/size_t.hpp>
+#include <ama/multi_array/config.hpp>
+
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+
+#include <boost/assert.hpp>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/comma_if.hpp>
+#include <boost/preprocessor/dec.hpp>
+#include <boost/preprocessor/if.hpp>
+#include <boost/preprocessor/inc.hpp>
+#include <boost/preprocessor/repeat.hpp>
+
+#define AMA_MA_IR_CONCAT_COMMA(z, n, data) \
+  BOOST_PP_COMMA_IF(n) BOOST_PP_CAT(data, n)
+
+#define AMA_MA_IR_ARGUMENT(n) \
+  BOOST_PP_REPEAT(n, AMA_MA_IR_CONCAT_COMMA, size_t const & I)
+
+#define AMA_MA_IR_INDEX(n) \
+  BOOST_PP_CAT(I, BOOST_PP_DEC(n))
+
+#define AMA_MA_IR_CHECK(D, n) \
+  BOOST_ASSERT((AMA_MA_IR_INDEX(n) < D))
+
+#define AMA_MA_IR_PREV(D, n) \
+  index_runtime<D>( BOOST_PP_REPEAT(BOOST_PP_DEC(n), AMA_MA_IR_CONCAT_COMMA, I) )
+
+#define AMA_MA_IR_RETURN(D, n) \
+  AMA_MA_IR_CHECK(D, n); \
+  return (D * AMA_MA_IR_PREV(D, n)) + AMA_MA_IR_INDEX(n)
+
+#define AMA_MA_IR_INDEX_COMPILE(n) \
+  template <size_t D> \
+  size_t index_runtime( AMA_MA_IR_ARGUMENT(n) ) \
+  { \
+    BOOST_PP_IF(n, AMA_MA_IR_RETURN(D, n), return 0); \
+  }
+
+#define AMA_MA_IR_MACRO(z, n, data) \
+  AMA_MA_IR_INDEX_COMPILE(n)
 
 namespace ama
 {
   namespace multi_array_
   {
 
-    namespace mpl = boost::mpl;
-
-    /* given dimension and the multi-index compute the array index */
-    template <typename D, typename ILIST>
-    struct index_runtime
-        : mpl::fold<
-                ILIST
-              , mpl::size_t<0>
-              , mpl::plus<mpl::times<D,mpl::_1>,mpl::_2>
-              >
-    { };
+    BOOST_PP_REPEAT(
+        BOOST_PP_INC(AMA_MULTI_ARRAY_MAX_LINEAR_ACCESS), AMA_MA_IR_MACRO, )
 
   }
 }
+
+#undef AMA_MA_IR_CONCAT_COMMA
+#undef AMA_MA_IR_ARGUMENT
+#undef AMA_MA_IR_INDEX
+#undef AMA_MA_IR_CHECK
+#undef AMA_MA_IR_PREV
+#undef AMA_MA_IR_RETURN
+#undef AMA_MA_IR_INDEX_COMPILE
+#undef AMA_MA_IR_MACRO
+
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
 
 #endif /* AMA_MULTI_ARRAY_DETAIL_INDEX_RUNTIME_HPP */

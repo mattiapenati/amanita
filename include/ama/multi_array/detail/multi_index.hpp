@@ -34,7 +34,7 @@
 
 #ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
 
-#include <ama/multi_array/detail/index_compiletime.hpp>
+#include <ama/multi_array/detail/index_runtime.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/comma_if.hpp>
 #include <boost/preprocessor/inc.hpp>
@@ -70,13 +70,13 @@
   public: \
     reference operator()( AMA_MA_MI_ARGUMENT(n) ) \
     { \
-      size_t const i = ::ama::multi_array_::index_compiletime<D>( AMA_MA_MI_CALL(n) ); \
+      size_t const i = ::ama::multi_array_::index_runtime<D>( AMA_MA_MI_CALL(n) ); \
       return derived().m_data.at(i); \
     } \
     \
     const_reference operator()( AMA_MA_MI_ARGUMENT(n) ) const \
     { \
-      size_t const i = ::ama::multi_array_::index_compiletime<D>( AMA_MA_MI_CALL(n) ); \
+      size_t const i = ::ama::multi_array_::index_runtime<D>( AMA_MA_MI_CALL(n) ); \
       return derived().m_data.at(i); \
     } \
   };

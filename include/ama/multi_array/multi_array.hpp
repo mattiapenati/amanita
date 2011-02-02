@@ -33,7 +33,7 @@
 #include <ama/common/array.hpp>
 
 #include <ama/multi_array/config.hpp>
-#include <ama/multi_array/detail/index_runtime.hpp>
+#include <ama/multi_array/detail/index_compiletime.hpp>
 #include <ama/multi_array/detail/multi_index.hpp>
 #include <ama/multi_array/detail/size.hpp>
 
@@ -92,7 +92,7 @@ namespace ama
     reference at()
     {
       rangecheck<ILIST>();
-      typedef typename multi_array_::index_runtime<dimension_type,ILIST>::type index;
+      typedef typename multi_array_::index_compiletime<dimension_type,ILIST>::type index;
 
       return m_data.at(index::value);
     }
@@ -102,7 +102,7 @@ namespace ama
     const_reference at() const
     {
       rangecheck<ILIST>();
-      typedef typename multi_array_::index_runtime<dimension_type,ILIST>::type index;
+      typedef typename multi_array_::index_compiletime<dimension_type,ILIST>::type index;
 
       return m_data.at(index::value);
     }
