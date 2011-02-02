@@ -1,0 +1,9 @@
+macro(create_new_test TEST_NAME SOURCE_LIST)
+    add_executable(${TEST_NAME} ${SOURCE_LIST})
+    target_link_libraries(${TEST_NAME} boost_unit_test_framework)
+    add_test(${TEST_NAME} ${TEST_NAME})
+endmacro()
+
+create_new_test(array array.cpp)
+create_new_test(multi_array multi_array.cpp)
+create_new_test(tensor tensor.cpp)

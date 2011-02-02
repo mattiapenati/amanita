@@ -2,6 +2,7 @@ project(amanita CXX)
 cmake_minimum_required(VERSION 2.6)
 
 # module and package
+include(CTest)
 find_package(Boost REQUIRED)
 
 # include directories
@@ -13,3 +14,4 @@ endif()
 
 # sub directories
 add_subdirectory(include)
+add_subdirectory(test)
