@@ -56,6 +56,7 @@ namespace ama
       typedef ::boost::mpl::false_ is_assignable;
     };
 
+
     /* class declaration */
     template <typename LEFT, typename RIGHT, typename OPERATOR>
     class iexp_cwise_binary:

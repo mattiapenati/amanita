@@ -26,73 +26,88 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP
-#define AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP 1
+#ifndef AMA_TENSOR_IEXP_IEXP_OUTER_HPP
+#define AMA_TENSOR_IEXP_IEXP_OUTER_HPP 1
 
+#include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/plus.hpp>
 
 namespace ama
 {
   namespace tensor_
   {
 
-    /* this class represent a unary component-wise operation */
-    template <typename OPERAND, typename OPERATOR> class iexp_cwise_unary;
+    /* forward declaration*/
+    template <typename LEFT, typename RIGHT> class iexp_outer;
 
 
-    /* specialization of iexp_traits */
-    template <typename OPERAND, typename OPERATOR>
-    struct iexp_traits< iexp_cwise_unary<OPERAND, OPERATOR> >
+    /* traits definition */
+    template <typename LEFT, typename RIGHT>
+    struct iexp_traits< iexp_outer<LEFT, RIGHT> >
     {
-      typedef typename OPERATOR::result_type value_type;
+      typedef typename LEFT::value_type value_type;
 
-      typedef typename OPERAND::dimension_type dimension_type;
+      typedef typename LEFT::dimension_type dimension_type;
 
-      typedef typename OPERAND::controvariant_type controvariant_type;
-      typedef typename OPERAND::covariant_type covariant_type;
-
-      typedef typename OPERAND::index_list index_list;
+      typedef typename ::boost::mpl::plus<
+                             typename LEFT::controvariant_type
+                           , typename RIGHT::controvariant_type
+                           >::type controvariant_type;
+      typedef typename ::boost::mpl::plus<
+                             typename LEFT::covariant_type
+                           , typename RIGHT::covariant_type
+                           >::type covariant_type;
 
       typedef ::boost::mpl::false_ is_assignable;
     };
 
 
     /* class declaration */
-    template <typename OPERAND, typename OPERATOR>
-    class iexp_cwise_unary:
-        public iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> >
+    template <typename LEFT, typename RIGHT>
+    class iexp_outer:
+        public iexp_base< iexp_outer<LEFT, RIGHT> >
     {
     protected:
-      typedef iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> > base_type;
-      typedef iexp_cwise_unary<OPERAND, OPERATOR> derived_type;
+      typedef iexp_base< iexp_outer<LEFT, RIGHT> > base_type;
+      typedef iexp_outer<LEFT, RIGHT> derived_type;
 
     protected:
-      typedef OPERAND operand_type;
-      typedef OPERATOR operator_type;
+      typedef LEFT left_operand_type;
+      typedef RIGHT right_operand_type;
 
     public:
       typedef typename base_type::value_type value_type;
 
     public:
-      /* constructor */
-      explicit
-      iexp_cwise_unary(operand_type const & operand,
-                       operator_type const & op = operator_type())
-          : m_operand(operand),
-            m_operator(op) { }
+      /* costructor */
+      iexp_outer(left_operand_type const & left,
+                 right_operand_type const & right)
+          : m_left(left),
+            m_right(right) { }
 
     public:
       /* retrieve the value */
       template <typename IMAP>
-      value_type at() const { return m_operator(m_operand.template at<IMAP>()); }
+      value_type at() const
+      {
+        typedef typename LEFT::index_list l_ilist;
+        typedef typename RIGHT::index_list r_ilist;
+
+        typedef typename index_reorder<IMAP, l_ilist>::type lilist;
+        typedef typename index_reorder<IMAP, r_ilist>::type rilist;
+
+        return (m_left.template at<lilist>()) * (m_right.template at<rilist>());
+      }
 
     protected:
       /* members */
-      operand_type const m_operand;
-      operator_type const m_operator;
+      left_operand_type const m_left;
+      right_operand_type const m_right;
     };
 
   }
 }
 
-#endif /* AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP */
+#endif /* AMA_TENSOR_IEXP_IEXP_OUTER_HPP */

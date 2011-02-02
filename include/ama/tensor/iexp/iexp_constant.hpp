@@ -26,73 +26,72 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP
-#define AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP 1
+#ifndef AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP
+#define AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP 1
 
+#include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace ama
 {
   namespace tensor_
   {
 
-    /* this class represent a unary component-wise operation */
-    template <typename OPERAND, typename OPERATOR> class iexp_cwise_unary;
+    /* forward declaration */
+    template <typename TENSOR, typename ILIST> class iexp_constant;
 
 
     /* specialization of iexp_traits */
-    template <typename OPERAND, typename OPERATOR>
-    struct iexp_traits< iexp_cwise_unary<OPERAND, OPERATOR> >
+    template <typename TENSOR, typename ILIST>
+    struct iexp_traits < iexp_constant<TENSOR, ILIST> >
     {
-      typedef typename OPERATOR::result_type value_type;
+      typedef typename TENSOR::value_type value_type;
 
-      typedef typename OPERAND::dimension_type dimension_type;
+      typedef typename TENSOR::dimension_type dimension_type;
 
-      typedef typename OPERAND::controvariant_type controvariant_type;
-      typedef typename OPERAND::covariant_type covariant_type;
+      typedef typename TENSOR::controvariant_type controvariant_type;
+      typedef typename TENSOR::covariant_type covariant_type;
 
-      typedef typename OPERAND::index_list index_list;
+      typedef ILIST index_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };
 
 
     /* class declaration */
-    template <typename OPERAND, typename OPERATOR>
-    class iexp_cwise_unary:
-        public iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> >
+    template <typename TENSOR, typename ILIST>
+    class iexp_constant:
+      public iexp_base< iexp_constant<TENSOR, ILIST> >
     {
     protected:
-      typedef iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> > base_type;
-      typedef iexp_cwise_unary<OPERAND, OPERATOR> derived_type;
-
-    protected:
-      typedef OPERAND operand_type;
-      typedef OPERATOR operator_type;
+      typedef iexp_base< iexp_constant<TENSOR, ILIST> > base_type;
+      typedef iexp_constant<TENSOR, ILIST> derived_type;
 
     public:
       typedef typename base_type::value_type value_type;
 
+    protected:
+      typedef TENSOR tensor_type;
+
     public:
       /* constructor */
-      explicit
-      iexp_cwise_unary(operand_type const & operand,
-                       operator_type const & op = operator_type())
-          : m_operand(operand),
-            m_operator(op) { }
+      explicit iexp_constant(tensor_type const & t): m_t(t) { }
 
     public:
       /* retrieve the value */
       template <typename IMAP>
-      value_type at() const { return m_operator(m_operand.template at<IMAP>()); }
+      value_type at() const
+      {
+        typedef typename index_reorder<IMAP, ILIST>::type ilist;
+        return m_t.template at<ilist>();
+      }
 
     protected:
-      /* members */
-      operand_type const m_operand;
-      operator_type const m_operator;
+      tensor_type const & m_t;
     };
 
   }
 }
 
-#endif /* AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP */
+#endif /* AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP */

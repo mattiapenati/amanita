@@ -106,17 +106,21 @@ namespace ama
        {
          dst.template at<I>() = src.template at<I>();
 
+         /* increment the multi-index */
          typedef typename increment<D,I>::type increment_type;
 
+         /* the first is the multi-index incremented */
          typedef typename mpl::first<increment_type>::type i;
+         /* the second is a boolean flag toidentify the last multi-index */
          typedef typename mpl::second<increment_type>::type r;
 
+         /* iterative call */
          copy<D,O,i,r>::apply(src,dst);
        }
      };
 
 
-     /* partial specialization */
+     /* partial specialization, end the iterative call */
      template <typename D, typename O, typename I>
      struct copy<D,O,I,mpl::true_>
      {

@@ -29,7 +29,7 @@
 #ifndef AMA_TENSOR_DETAIL_TENSOR_OUTER_HPP
 #define AMA_TENSOR_DETAIL_TENSOR_OUTER_HPP 1
 
-#include <ama/tensor/detail/tensor_outer.hpp>
+#include <ama/tensor/detail/tensor_base.hpp>
 #include <boost/mpl/advance.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/begin_end.hpp>
