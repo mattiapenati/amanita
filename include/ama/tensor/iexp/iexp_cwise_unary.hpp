@@ -26,12 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_DETAIL_TENSOR_CWISE_UNARY_HPP
-#define AMA_TENSOR_DETAIL_TENSOR_CWISE_UNARY_HPP 1
+#ifndef AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP
+#define AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP 1
 
-#include <ama/tensor/detail/tensor_base.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/if.hpp>
+#include <ama/tensor/iexp/iexp_base.hpp>
 
 namespace ama
 {
@@ -39,12 +37,12 @@ namespace ama
   {
 
     /* this class represent a unary component-wise operation */
-    template <typename OPERAND, typename OPERATOR> class tensor_cwise_unary;
+    template <typename OPERAND, typename OPERATOR> class iexp_cwise_unary;
 
 
-    /* specialization of tensor_traits */
+    /* specialization of iexp_traits */
     template <typename OPERAND, typename OPERATOR>
-    struct tensor_traits< tensor_cwise_unary<OPERAND, OPERATOR> >
+    struct iexp_traits< iexp_cwise_unary<OPERAND, OPERATOR> >
     {
       typedef typename OPERATOR::result_type value_type;
 
@@ -53,19 +51,19 @@ namespace ama
       typedef typename OPERAND::controvariant_type controvariant_type;
       typedef typename OPERAND::covariant_type covariant_type;
 
-      typedef ::boost::mpl::false_ is_assignable;
-      typedef ::boost::mpl::true_ is_temporary;
-    };
+      typedef typename OPERAND::index_list index_list;
 
+      typedef ::boost::mpl::false_ is_assignable;
+    };
 
     /* class declaration */
     template <typename OPERAND, typename OPERATOR>
-    class tensor_cwise_unary:
-        public tensor_base< tensor_cwise_unary<OPERAND, OPERATOR> >
+    class iexp_cwise_unary:
+        public iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> >
     {
     protected:
-      typedef tensor_base< tensor_cwise_unary<OPERAND, OPERATOR> > base_type;
-      typedef tensor_cwise_unary<OPERAND, OPERATOR> derived_type;
+      typedef iexp_base< iexp_cwise_unary<OPERAND, OPERATOR> > base_type;
+      typedef iexp_cwise_unary<OPERAND, OPERATOR> derived_type;
 
     protected:
       typedef OPERAND operand_type;
@@ -77,31 +75,23 @@ namespace ama
     public:
       /* constructor */
       explicit
-      tensor_cwise_unary(operand_type const & operand,
-                         operator_type const & op = operator_type())
+      iexp_cwise_unary(operand_type const & operand,
+                       operator_type const & op = operator_type())
           : m_operand(operand),
             m_operator(op) { }
 
     public:
       /* retrieve the value */
-      template <typename ILIST>
-      value_type at() const { return m_operator(m_operand.template at<ILIST>()); }
+      template <typename IMAP>
+      value_type at() const { return m_operator(m_operand.template at<IMAP>()); }
 
     protected:
-      /* if the operand is temporary we save a copy, otherwise a reference */
-      typedef typename OPERAND::is_temporary operand_is_temporary;
-      typedef typename ::boost::mpl::if_<
-            operand_is_temporary
-          , operand_type const
-          , operand_type const &
-          >::type const_operand_type;
-
       /* members */
-      const_operand_type m_operand;
+      operand_type const m_operand;
       operator_type const m_operator;
     };
 
   }
 }
 
-#endif /* AMA_TENSOR_DETAIL_TENSOR_CWISE_UNARY_HPP */
+#endif /* AMA_TENSOR_IEXP_IEXP_CWISE_UNARY_HPP */

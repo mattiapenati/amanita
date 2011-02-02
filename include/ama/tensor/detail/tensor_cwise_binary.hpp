@@ -40,7 +40,7 @@ namespace ama
   namespace tensor_
   {
 
-    /* this class representa a unary component-wise operation */
+    /* this class represent a unary component-wise operation */
     template <typename LEFT, typename RIGHT, typename OPERATOR> class tensor_cwise_binary;
 
 
