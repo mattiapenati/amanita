@@ -26,59 +26,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_COPY_HPP
-#define AMA_TENSOR_COPY_HPP 1
+#ifndef AMA_TENSOR_IEXP_IEXP_FACTORY_HPP
+#define AMA_TENSOR_IEXP_IEXP_FACTORY_HPP 1
 
-#include <ama/tensor/detail/copy.hpp>
-#include <ama/tensor/detail/is_same_tensor.hpp>
-#include <ama/tensor/detail/tensor_base.hpp>
-#include <ama/tensor/iexp/iexp_base.hpp>
-#include <ama/tensor/iexp/iexp_copy.hpp>
+#include <ama/tensor/iexp/iexp_mutable.hpp>
+#include <ama/tensor/iexp/iexp_constant.hpp>
 
 namespace ama
 {
-
-  template <typename SRC, typename DST>
-  void copy(tensor_::tensor_base<SRC> const & src,
-            tensor_::tensor_base<DST> & dst)
+  namespace tensor_
   {
-    BOOST_MPL_ASSERT_MSG(
-          (tensor_::is_same_tensor<SRC, DST>::value)
-        , COMPONENT_WISE_BINARY_OPERATION_BETWEEN_DIFFERENT_TENSORS_ARE_NOT_ALLOWED
-        , (SRC, DST));
 
-    BOOST_MPL_ASSERT_MSG(
-          (DST::is_assignable::value)
-        , THE_DESTINATION_MUST_BE_ASSIGNABLE
-        , (DST));
+    /* forward declaration */
+    template <typename WHAT> struct iexp_factory;
 
-    typedef typename SRC::dimension_type dimension_type;
-    typedef typename SRC::order_type order_type;
 
-    tensor_::copy<dimension_type,order_type>::template apply(src.derived(), dst.derived());
+    /* specialization for mutable index expression */
+    template <typename DERIVED, typename ILIST>
+    struct iexp_factory< iexp_mutable<DERIVED, ILIST> >
+    {
+      static
+      iexp_mutable<DERIVED,ILIST>
+      apply(DERIVED & t)
+      {
+        return iexp_mutable<DERIVED,ILIST>(t);
+      }
+    };
+
+    /* specialization for constant index expression */
+    template <typename DERIVED, typename ILIST>
+    struct iexp_factory< iexp_constant<DERIVED, ILIST> >
+    {
+      static
+      iexp_constant<DERIVED,ILIST>
+      apply(DERIVED & t)
+      {
+        return iexp_constant<DERIVED,ILIST>(t);
+      }
+    };
+
   }
-
-
-
-
-  /* TODO to be removed */
-  template <typename SRC, typename DST>
-  void copy(tensor_::iexp_base<SRC> const & src,
-            tensor_::iexp_base<DST> & dst)
-  {
-    /* TODO implement is_same_iexp */
-
-    BOOST_MPL_ASSERT_MSG(
-          (DST::is_assignable::value)
-        , THE_DESTINATION_MUST_BE_ASSIGNABLE
-        , (DST));
-
-    typedef typename SRC::dimension_type dimension_type;
-    typedef typename SRC::order_type order_type;
-
-    tensor_::iexp_copy<dimension_type,order_type>::template apply(src.derived(), dst.derived());
-  }
-
 }
 
-#endif /* AMA_TENSOR_COPY_HPP */
+#endif /* AMA_TENSOR_IEXP_IEXP_FACTORY_HPP */

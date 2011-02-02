@@ -32,9 +32,14 @@
 #include <ama/tensor/config.hpp>
 #include <ama/tensor/copy.hpp>
 #include <ama/tensor/detail/tensor_base.hpp>
+#include <ama/tensor/iexp/iexp_calculator.hpp>
+#include <ama/tensor/iexp/iexp_factory.hpp>
 #include <ama/common/size_t.hpp>
 #include <ama/multi_array/multi_array.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/equal_to.hpp>
+#include <boost/mpl/size.hpp>
 #include <boost/mpl/size_t.hpp>
 
 namespace ama
@@ -79,6 +84,9 @@ namespace ama
     typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::value_type value_type;
     typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::dimension_type dimension_type;
 
+    /* needed */
+    typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::order_type order_type;
+
   public:
     /* default constructor */
     tensor():
@@ -114,6 +122,40 @@ namespace ama
       ama::copy(t.derived(), *this);
       return *this;
     }
+
+/* ============================ INDEX EXPRESSION ============================ */
+  public:
+    /* index expression contruction */
+    template <typename ILIST>
+    typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::false_>::type
+    idx()
+    {
+      namespace mpl = ::boost::mpl;
+
+      BOOST_MPL_ASSERT_MSG(
+            (mpl::equal_to<mpl::size<ILIST>, order_type>::value)
+          , THE_LENGTH_OF_LIST_OF_INDICES_MUST_BE_EQUAL_TO_THE_TENSOR_ORDER
+          , (ILIST));
+
+      typedef typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::false_>::type what;
+      return tensor_::iexp_factory<what>::apply(*this);
+    }
+
+    template <typename ILIST>
+    typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::true_>::type
+    idx() const
+    {
+      namespace mpl = ::boost::mpl;
+
+      BOOST_MPL_ASSERT_MSG(
+            (mpl::equal_to<mpl::size<ILIST>, order_type>::value)
+          , THE_LENGTH_OF_LIST_OF_INDICES_MUST_BE_EQUAL_TO_THE_TENSOR_ORDER
+          , (ILIST));
+
+      typedef typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::true_>::type what;
+      return tensor_::iexp_factory<what>::apply(*this);
+    }
+/* ============================ INDEX EXPRESSION ============================ */
   };
 
 

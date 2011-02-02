@@ -119,6 +119,8 @@ namespace ama
     return return_type(left.derived(), right.derived());
   }
 
+  /* TODO operator*(tensor_::iexp_base<LEFT> const & left, tensor_::iexp_base<RIGHT> const & right) */
+
 }
 
 
