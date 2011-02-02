@@ -29,7 +29,9 @@
 #ifndef AMA_TENSOR_DETAIL_TENSOR_CWISE_BINARY_HPP
 #define AMA_TENSOR_DETAIL_TENSOR_CWISE_BINARY_HPP 1
 
+#include <ama/tensor/detail/is_same_tensor.hpp>
 #include <ama/tensor/detail/tensor_base.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/if.hpp>
 
@@ -63,7 +65,11 @@ namespace ama
     class tensor_cwise_binary:
         public tensor_base< tensor_cwise_binary<LEFT, RIGHT, OPERATOR> >
     {
-      /* TODO check that the LEFT and RIGHT operand are the same type */
+      BOOST_MPL_ASSERT_MSG(
+            (tensor_::is_same_tensor<LEFT, RIGHT>::value)
+          , COMPONENT_WISE_BINARY_OPERATION_BETWEEN_DIFFERENT_TENSORS_ARE_NOT_ALLOWED
+          , (LEFT, RIGHT));
+
     protected:
       typedef tensor_base< tensor_cwise_binary<LEFT, RIGHT, OPERATOR> > base_type;
       typedef tensor_cwise_binary<LEFT, RIGHT, OPERATOR> derived_type;

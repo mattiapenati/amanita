@@ -29,8 +29,9 @@
 #ifndef AMA_TENSOR_COPY_HPP
 #define AMA_TENSOR_COPY_HPP 1
 
-#include <ama/tensor/detail/tensor_base.hpp>
 #include <ama/tensor/detail/copy.hpp>
+#include <ama/tensor/detail/is_same_tensor.hpp>
+#include <ama/tensor/detail/tensor_base.hpp>
 
 namespace ama
 {
@@ -39,7 +40,15 @@ namespace ama
   void copy(tensor_::tensor_base<SRC> const & src,
             tensor_::tensor_base<DST> & dst)
   {
-    /* TODO check that the LEFT and RIGHT operand are the same type and dst is assignable */
+    BOOST_MPL_ASSERT_MSG(
+          (tensor_::is_same_tensor<SRC, DST>::value)
+        , COMPONENT_WISE_BINARY_OPERATION_BETWEEN_DIFFERENT_TENSORS_ARE_NOT_ALLOWED
+        , (SRC, DST));
+
+    BOOST_MPL_ASSERT_MSG(
+          (DST::is_assignable::value)
+        , THE_DESTINATION_MUST_BE_ASSIGNABLE
+        , (DST));
 
     typedef typename SRC::dimension_type dimension_type;
     typedef typename SRC::order_type order_type;

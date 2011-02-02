@@ -71,8 +71,8 @@ namespace ama
   /* class declaration */
   template <typename S, size_t D, size_t CT, size_t CO>
   class tensor:
-        public tensor_::tensor_base< tensor<S,D,CT,CO> >,
-        public multi_array<S,D,CT+CO>
+      public tensor_::tensor_base< tensor<S,D,CT,CO> >,
+      public multi_array<S,D,CT+CO>
   {
   public:
     /* resolv the ambiguity */
@@ -91,6 +91,7 @@ namespace ama
         multi_array<S,D,CT+CO>(t) { }
 
     template <typename DERIVED>
+    explicit
     tensor(tensor_::tensor_base<DERIVED> const & t):
         tensor_::tensor_base< tensor<S,D,CT,CO> >(),
         multi_array<S,D,CT+CO>()
@@ -109,7 +110,84 @@ namespace ama
   };
 
 
-  /* TODO same partial specialization of multi_array<...> */
+
+
+  /* partial specialization for 0-order tensor */
+  template <typename S, size_t D>
+  class tensor<S,D,0,0>:
+      public tensor_::tensor_base< tensor<S,D,0,0> >,
+      public multi_array<S,D,0>
+  {
+  public:
+    /* resolv the ambiguity */
+    typedef typename tensor_::tensor_base< tensor<S,D,0,0> >::value_type value_type;
+    typedef typename tensor_::tensor_base< tensor<S,D,0,0> >::dimension_type dimension_type;
+
+  public:
+    /* default constructor */
+    explicit
+    tensor(S const & value = S()):
+        tensor_::tensor_base< tensor<S,D,0,0> >(),
+        multi_array<S,D,0>(value) { }
+
+    /* copy constructor */
+    tensor(tensor const & t):
+        tensor_::tensor_base< tensor<S,D,0,0> >(),
+        multi_array<S,D,0>(t) { }
+
+    template <typename DERIVED>
+    explicit
+    tensor(tensor_::tensor_base<DERIVED> const & t):
+        tensor_::tensor_base< tensor<S,D,0,0> >(),
+        multi_array<S,D,0>()
+    {
+      copy(t.derived(), *this);
+    }
+
+  public:
+    /* copy operator */
+    template <typename DERIVED>
+    tensor & operator=(tensor_::tensor_base<DERIVED> const & t)
+    {
+      copy(t.derived(), *this);
+      return *this;
+    }
+
+  public:
+    /* cast operator */
+    operator value_type() { return this->template at<void>(); }
+    operator value_type() const { return this->template at<void>(); }
+  };
+
+
+
+
+  /* partial specialization for 0-dimension tensor */
+  template <typename S, size_t CT, size_t CO>
+  class tensor<S,0,CT,CO>:
+      public tensor_::tensor_base< tensor<S,0,CT,CO> >,
+      public multi_array<S,0,CT+CO>
+  {
+  public:
+    /* resolv the ambiguity */
+    typedef typename tensor_::tensor_base< tensor<S,0,CT,CO> >::value_type value_type;
+    typedef typename tensor_::tensor_base< tensor<S,0,CT,CO> >::dimension_type dimension_type;
+  };
+
+
+
+
+  /* partial specialization for 0-dimension tensor */
+  template <typename S>
+  class tensor<S,0,0,0>:
+      public tensor_::tensor_base< tensor<S,0,0,0> >,
+      public multi_array<S,0,0>
+  {
+  public:
+    /* resolv the ambiguity */
+    typedef typename tensor_::tensor_base< tensor<S,0,0,0> >::value_type value_type;
+    typedef typename tensor_::tensor_base< tensor<S,0,0,0> >::dimension_type dimension_type;
+  };
 
 }
 

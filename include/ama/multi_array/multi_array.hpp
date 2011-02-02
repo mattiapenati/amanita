@@ -165,6 +165,8 @@ namespace ama
   };
 
 
+
+
   /* partial specialization for 0 order (empty) */
   template <typename T, size_t D>
   class multi_array<T, D, 0>
@@ -203,6 +205,15 @@ namespace ama
     }
 
   public:
+    /* get a component from a multi-index (Boost.MPL - Forward Sequence) */
+    template <typename ILIST>
+    reference at() { return m_data; }
+
+    /* get a component from a multi-index (Boost.MPL - Forward Sequence) */
+    template <typename ILIST>
+    const_reference at() const { return m_data; }
+
+  public:
     /* cast operator */
     operator value_type() { return m_data; }
     operator value_type() const { return m_data; }
@@ -222,6 +233,8 @@ namespace ama
   protected:
     value_type m_data;
   };
+
+
 
 
   /* partial specialization for 0 dimension (empty) */
@@ -250,6 +263,8 @@ namespace ama
     size_t dimension() const { return 0; }
     size_t order() const { return O; }
   };
+
+
 
 
   /* partial specialization for 0 dimension (empty) */
