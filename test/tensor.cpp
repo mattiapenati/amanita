@@ -198,3 +198,23 @@ BOOST_AUTO_TEST_CASE(complex_operation)
   BOOST_CHECK_EQUAL((ama::get<1,0>(a4)), 0.5f * (1.0f - 2.0f) - 3.0f);
   BOOST_CHECK_EQUAL((ama::get<1,1>(a4)), 0.5f * (1.1f - 2.2f) - 3.3f);
 }
+
+BOOST_AUTO_TEST_CASE(outer)
+{
+  ama::tensor<float, 2, 1, 1> a1;
+  ama::tensor<float, 2, 0, 1> v;
+  ama::tensor<float, 2, 1, 0> w;
+
+  ama::get<0>(v) = 1.1;
+  ama::get<1>(v) = 2.1;
+
+  ama::get<0>(w) = 1.2;
+  ama::get<1>(w) = 2.2;
+
+  a1 = ama::outer(w,v);
+
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a1)), (ama::get<0>(w) * ama::get<0>(v)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a1)), (ama::get<0>(w) * ama::get<1>(v)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a1)), (ama::get<1>(w) * ama::get<0>(v)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a1)), (ama::get<1>(w) * ama::get<1>(v)));
+}

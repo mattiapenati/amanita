@@ -96,15 +96,22 @@ namespace ama
         tensor_::tensor_base< tensor<S,D,CT,CO> >(),
         multi_array<S,D,CT+CO>()
     {
-      copy(t.derived(), *this);
+      ama::copy(t.derived(), *this);
     }
 
   public:
     /* copy operator */
     template <typename DERIVED>
+    tensor & operator=(tensor const & t)
+    {
+      ama::copy(t.derived(), *this);
+      return *this;
+    }
+
+    template <typename DERIVED>
     tensor & operator=(tensor_::tensor_base<DERIVED> const & t)
     {
-      copy(t.derived(), *this);
+      ama::copy(t.derived(), *this);
       return *this;
     }
   };
@@ -141,7 +148,7 @@ namespace ama
         tensor_::tensor_base< tensor<S,D,0,0> >(),
         multi_array<S,D,0>()
     {
-      copy(t.derived(), *this);
+      ama::copy(t.derived(), *this);
     }
 
   public:
@@ -149,7 +156,7 @@ namespace ama
     template <typename DERIVED>
     tensor & operator=(tensor_::tensor_base<DERIVED> const & t)
     {
-      copy(t.derived(), *this);
+      ama::copy(t.derived(), *this);
       return *this;
     }
 
