@@ -58,27 +58,6 @@ namespace ama
     tensor_::copy<dimension_type,order_type>::template apply(src.derived(), dst.derived());
   }
 
-
-
-
-  /* TODO to be removed */
-  template <typename SRC, typename DST>
-  void copy(tensor_::iexp_base<SRC> const & src,
-            tensor_::iexp_base<DST> & dst)
-  {
-    /* TODO implement is_same_iexp */
-
-    BOOST_MPL_ASSERT_MSG(
-          (DST::is_assignable::value)
-        , THE_DESTINATION_MUST_BE_ASSIGNABLE
-        , (DST));
-
-    typedef typename SRC::dimension_type dimension_type;
-    typedef typename SRC::order_type order_type;
-
-    tensor_::iexp_copy<dimension_type,order_type>::template apply(src.derived(), dst.derived());
-  }
-
 }
 
 #endif /* AMA_TENSOR_COPY_HPP */

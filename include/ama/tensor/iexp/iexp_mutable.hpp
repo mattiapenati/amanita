@@ -31,6 +31,7 @@
 
 #include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/iexp/iexp_copy.hpp>
 #include <boost/mpl/bool.hpp>
 
 namespace ama
@@ -71,6 +72,9 @@ namespace ama
     public:
       typedef typename base_type::value_type value_type;
 
+      typedef typename base_type::dimension_type dimension_type;
+      typedef typename base_type::order_type order_type;
+
     protected:
       typedef TENSOR tensor_type;
 
@@ -92,6 +96,26 @@ namespace ama
       {
         typedef typename index_reorder<IMAP, ILIST>::type ilist;
         return m_t.template at<ilist>();
+      }
+
+    public:
+      /* copy an expression */
+      iexp_mutable &
+      operator=(iexp_mutable const & ie)
+      {
+        iexp_copy<dimension_type,order_type>::apply(ie, *this);
+        return *this;
+      }
+
+      /* copy an expression */
+      template <typename DERIVED>
+      iexp_mutable &
+      operator=(iexp_base<DERIVED> const & ie)
+      {
+        /* TODO implement is_same_iexp */
+
+        iexp_copy<dimension_type,order_type>::apply(ie.derived(), *this);
+        return *this;
       }
 
     protected:
