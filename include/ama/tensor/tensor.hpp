@@ -30,6 +30,7 @@
 #define AMA_TENSOR_TENSOR_HPP 1
 
 #include <ama/tensor/config.hpp>
+#include <ama/tensor/copy.hpp>
 #include <ama/tensor/detail/tensor_base.hpp>
 #include <ama/common/size_t.hpp>
 #include <ama/multi_array/multi_array.hpp>
@@ -60,8 +61,8 @@ namespace ama
       typedef ::boost::mpl::size_t<CT> controvariant_type;
       typedef ::boost::mpl::size_t<CO> covariant_type;
 
-      typedef ::boost::mpl::bool_<true> is_assignable;
-      typedef ::boost::mpl::bool_<false> is_temporary;
+      typedef ::boost::mpl::true_ is_assignable;
+      typedef ::boost::mpl::false_ is_temporary;
     };
 
   }
@@ -94,7 +95,7 @@ namespace ama
         tensor_::tensor_base< tensor<S,D,CT,CO> >(),
         multi_array<S,D,CT+CO>()
     {
-      /* TODO use copy */
+      copy(t.derived(), *this);
     }
 
   public:
@@ -102,7 +103,7 @@ namespace ama
     template <typename DERIVED>
     tensor & operator=(tensor_::tensor_base<DERIVED> const & t)
     {
-      /* TODO use copy */
+      copy(t.derived(), *this);
       return *this;
     }
   };

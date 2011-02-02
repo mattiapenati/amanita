@@ -53,8 +53,8 @@ namespace ama
       typedef typename OPERAND::controvariant_type controvariant_type;
       typedef typename OPERAND::covariant_type covariant_type;
 
-      typedef ::boost::mpl::bool_<false> is_assignable;
-      typedef ::boost::mpl::bool_<true> is_temporary;
+      typedef ::boost::mpl::false_ is_assignable;
+      typedef ::boost::mpl::true_ is_temporary;
     };
 
 

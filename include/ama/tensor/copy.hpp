@@ -26,12 +26,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_HPP
-#define AMA_TENSOR_HPP 1
+#ifndef AMA_TENSOR_COPY_HPP
+#define AMA_TENSOR_COPY_HPP 1
 
-#include <ama/tensor/tensor.hpp>
-#include <ama/tensor/get.hpp>
-#include <ama/tensor/copy.hpp>
-#include <ama/tensor/operator.hpp>
+#include <ama/tensor/detail/tensor_base.hpp>
+#include <ama/tensor/detail/copy.hpp>
 
-#endif /* AMA_TENSOR_HPP */
+namespace ama
+{
+
+  template <typename SRC, typename DST>
+  void copy(tensor_::tensor_base<SRC> const & src,
+            tensor_::tensor_base<DST> & dst)
+  {
+    /* TODO check that the LEFT and RIGHT operand are the same type and dst is assignable */
+
+    typedef typename SRC::dimension_type dimension_type;
+    typedef typename SRC::order_type order_type;
+
+    tensor_::copy<dimension_type,order_type>::template apply(src.derived(), dst.derived());
+  }
+
+}
+
+#endif /* AMA_TENSOR_COPY_HPP */
