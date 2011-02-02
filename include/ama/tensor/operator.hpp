@@ -42,7 +42,10 @@ namespace ama
   {
     template <typename T>
     struct scalar_mul:
-      public std::binder1st< std::multiplies<T> > { };
+      public std::binder1st< std::multiplies<T> >
+    {
+      scalar_mul(T const & a): std::binder1st< std::multiplies<T> >(std::multiplies<T>(), a) { }
+    };
   }
 
 
@@ -71,19 +74,20 @@ namespace ama
   template <typename DERIVED>
   tensor_::tensor_cwise_unary<
         DERIVED
-      , std::binder1st< std::multiplies<typename DERIVED::value_type> >
+      , tensor_::scalar_mul<typename DERIVED::value_type>
       >
   operator*(typename DERIVED::value_type const & a,
             tensor_::tensor_base<DERIVED> const & t)
   {
     typedef typename DERIVED::value_type value_type;
-    typedef std::multiplies<value_type> binary_type;
-    typedef std::binder1st<binary_type> operator_type;
+    typedef tensor_::scalar_mul<value_type> operator_type;
 
     typedef tensor_::tensor_cwise_unary<DERIVED,operator_type> return_type;
 
-    return return_type(t.derived(), operator_type(binary_type() , a));
+    return return_type(t.derived(), operator_type(a));
   }
+
+
 
 
   /* plus */
