@@ -29,6 +29,7 @@
 #ifndef AMA_TENSOR_IEXP_IEXP_TEMPORARY_HPP
 #define AMA_TENSOR_IEXP_IEXP_TEMPORARY_HPP 1
 
+#include <ama/tensor/detail/tensor_base.hpp>
 #include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
 #include <boost/mpl/bool.hpp>
@@ -60,7 +61,10 @@ namespace ama
 
 
     /* class declaration */
-    template <typename TENSOR, typename ILIST>
+    template <
+          typename TENSOR
+        , typename ILIST /* the list of indices not repeated */
+        >
     class iexp_temporary:
       public iexp_base< iexp_temporary<TENSOR, ILIST> >
     {
@@ -78,12 +82,16 @@ namespace ama
       /* constructor */
       explicit iexp_temporary(tensor_type const & t): m_t(t) { }
 
+      template <typename DERIVED>
+      explicit iexp_temporary(tensor_base<DERIVED> const & t): m_t(t) { }
+
     public:
       /* retrieve the value */
       template <typename IMAP>
       value_type at() const
       {
         typedef typename index_reorder<IMAP, ILIST>::type ilist;
+
         return m_t.template at<ilist>();
       }
 

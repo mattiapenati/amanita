@@ -38,7 +38,6 @@
 #include <ama/tensor/iexp/iexp_base.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
 #include <ama/tensor/iexp/iexp_mutable.hpp>
-#include <ama/tensor/iexp/iexp_outer.hpp>
 #include <ama/tensor/iexp/iexp_temporary.hpp>
 
 namespace ama
@@ -119,7 +118,6 @@ namespace ama
     return return_type(left.derived(), right.derived());
   }
 
-  /* TODO operator*(tensor_::iexp_base<LEFT> const & left, tensor_::iexp_base<RIGHT> const & right) */
 
 }
 

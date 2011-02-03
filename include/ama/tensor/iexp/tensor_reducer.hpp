@@ -26,12 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP
-#define AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP 1
+#ifndef AMA_TENSOR_IEXP_TENSOR_REDUCER_HPP
+#define AMA_TENSOR_IEXP_TENSOR_REDUCER_HPP 1
 
-#include <ama/tensor/iexp/index_reorder.hpp>
-#include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/detail/tensor_base.hpp>
+#include <ama/tensor/iexp/iexp_calculator.hpp>
+#include <ama/tensor/iexp/iexp_constant.hpp>
+#include <ama/tensor/iexp/sum.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/size.hpp>
 
 namespace ama
 {
@@ -39,60 +42,75 @@ namespace ama
   {
 
     /* forward declaration */
-    template <typename TENSOR, typename ILIST> class iexp_constant;
+    template <typename TENSOR, typename ILIST> class tensor_reducer;
 
 
-    /* specialization of iexp_traits */
+    /* specialization of trait */
     template <typename TENSOR, typename ILIST>
-    struct iexp_traits < iexp_constant<TENSOR, ILIST> >
+    struct tensor_traits< tensor_reducer<TENSOR, ILIST> >
     {
       typedef typename TENSOR::value_type value_type;
 
+      typedef typename repeated_indices<ILIST>::type sum_indeces; /* index of sum */
+
       typedef typename TENSOR::dimension_type dimension_type;
-
-      typedef typename TENSOR::controvariant_type controvariant_type;
-      typedef typename TENSOR::covariant_type covariant_type;
-
-      typedef ILIST index_list;
+      typedef ::boost::mpl::size< iexp_controvariant_unique<TENSOR,ILIST> > controvariant_type;
+      typedef ::boost::mpl::size< iexp_covariant_unique<TENSOR,ILIST> > covariant_type;
 
       typedef ::boost::mpl::false_ is_assignable;
+      typedef ::boost::mpl::true_ is_temporary;
     };
 
 
-    /* class declaration */
-    template <typename TENSOR, typename ILIST>
-    class iexp_constant:
-      public iexp_base< iexp_constant<TENSOR, ILIST> >
+    /* class definition */
+    template <
+          typename TENSOR
+        , typename ILIST /* the list of all indeces */
+        >
+    class tensor_reducer:
+        public tensor_base< tensor_reducer<TENSOR,ILIST> >
     {
     protected:
-      typedef iexp_base< iexp_constant<TENSOR, ILIST> > base_type;
-      typedef iexp_constant<TENSOR, ILIST> derived_type;
+      typedef tensor_base< tensor_reducer<TENSOR,ILIST> > base_type;
+      typedef tensor_reducer<TENSOR,ILIST> derived_type;
+
+      typedef TENSOR tensor_type;
+      typedef iexp_constant<TENSOR, ILIST> iexp_type;
 
     public:
       typedef typename base_type::value_type value_type;
 
-    protected:
-      typedef TENSOR tensor_type;
+    public:
+      explicit
+      tensor_reducer(tensor_type const & t)
+          : m_iexp(t) { }
 
     public:
-      /* constructor */
-      explicit iexp_constant(tensor_type const & t): m_t(t) { }
-
-    public:
-      /* retrieve the value */
-      template <typename IMAP>
+      template <typename IND>
       value_type at() const
       {
-        typedef typename index_reorder<IMAP, ILIST>::type ilist;
+        namespace mpl = ::boost::mpl;
 
-        return m_t.template at<ilist>();
+        typedef typename not_repeated_indices<ILIST>::type indeces; /* other indices */
+        typedef typename repeated_indices<ILIST>::type sum_indeces; /* index of sum */
+
+        /* TODO check size<IND> == size<indices> */
+
+        /* indeces (not for sum) */
+        typedef typename make_imap<indeces, IND>::type imap;
+
+        /* others */
+        typedef typename TENSOR::dimension_type dimension;
+        typedef typename mpl::size<sum_indeces>::type order;
+
+        return sum<dimension, order>::template apply<imap, sum_indeces>(m_iexp);
       }
 
     protected:
-      tensor_type const & m_t;
+      iexp_type const m_iexp;
     };
 
   }
 }
 
-#endif /* AMA_TENSOR_IEXP_IEXP_CONSTANT_HPP */
+#endif /* AMA_TENSOR_IEXP_TENSOR_REDUCER_HPP */

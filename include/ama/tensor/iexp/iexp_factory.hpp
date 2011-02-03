@@ -31,20 +31,62 @@
 
 #include <ama/tensor/iexp/iexp_mutable.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
+#include <ama/tensor/iexp/iexp_temporary.hpp>
+#include <ama/tensor/iexp/tensor_reducer.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/equal.hpp>
+#include <boost/mpl/vector/vector0_c.hpp>
 
 namespace ama
 {
   namespace tensor_
   {
 
+    namespace mpl = ::boost::mpl;
+
     /* forward declaration */
-    template <typename WHAT> struct iexp_factory;
+    template <typename WHAT>
+    struct iexp_factory
+    {
+      template <typename ILIST, typename TENSOR>
+      static
+      WHAT apply(TENSOR const & t)
+      {
+        /* TODO implement reduce over all indeces */
+
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::equal<WHAT, typename TENSOR::value_type>::type::value)
+            , THIS_STRUCT_CAN_BE_CALLED_ONLY_TO_REDUCE_OVER_ALL_INDICES
+            , (WHAT));
+
+        return tensor_reducer<TENSOR,ILIST>(t).template at< ::boost::mpl::vector0_c<size_t> >();
+      }
+    };
+
+
+
+
+    /* specialization for mutable index expression */
+    template <typename DERIVED, typename ULIST>
+    struct iexp_factory< iexp_temporary<DERIVED, ULIST> >
+    {
+      template <typename ILIST, typename TENSOR>
+      static
+      iexp_temporary<DERIVED,ULIST>
+      apply(TENSOR const & t)
+      {
+        return iexp_temporary<DERIVED,ULIST>(tensor_reducer<TENSOR, ILIST>(t));
+      }
+    };
+
+
 
 
     /* specialization for mutable index expression */
     template <typename DERIVED, typename ILIST>
     struct iexp_factory< iexp_mutable<DERIVED, ILIST> >
     {
+      template <typename ULIST>
       static
       iexp_mutable<DERIVED,ILIST>
       apply(DERIVED & t)
@@ -53,10 +95,14 @@ namespace ama
       }
     };
 
+
+
+
     /* specialization for constant index expression */
     template <typename DERIVED, typename ILIST>
     struct iexp_factory< iexp_constant<DERIVED, ILIST> >
     {
+      template <typename ULIST>
       static
       iexp_constant<DERIVED,ILIST>
       apply(DERIVED & t)

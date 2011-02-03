@@ -46,7 +46,10 @@ namespace ama
     namespace mpl = ::boost::mpl;
 
     /* from two list create a map*/
-    template <typename I1, typename I2>
+    template <
+          typename I1 /* index name */
+        , typename I2 /* index value */
+        >
     struct make_imap:
         mpl::transform<
               I1

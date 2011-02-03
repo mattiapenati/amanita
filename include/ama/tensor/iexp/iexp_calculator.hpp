@@ -29,18 +29,30 @@
 #ifndef AMA_TENSOR_IEXP_IEXP_CALCULATOR_HPP
 #define AMA_TENSOR_IEXP_IEXP_CALCULATOR_HPP 1
 
+#include <ama/common/size_t.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
 #include <ama/tensor/iexp/iexp_mutable.hpp>
+#include <boost/mpl/advance.hpp>
+#include <boost/mpl/begin_end.hpp>
 #include <boost/mpl/comparison.hpp>
+#include <boost/mpl/contains.hpp>
 #include <boost/mpl/count.hpp>
 #include <boost/mpl/empty.hpp>
 #include <boost/mpl/fold.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/logical.hpp>
+#include <boost/mpl/max.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/push_back.hpp>
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/vector/vector0.hpp>
+
+
+namespace ama
+{
+  /* forward declaration */
+  template <typename T, size_t D, size_t CT, size_t CO> class tensor;
+}
 
 namespace ama
 {
@@ -76,9 +88,9 @@ namespace ama
                         , mpl::size_t<1>
                         >
                   , mpl::push_back<mpl::_1, mpl::_2>
-                  , mpl::_2
+                  , mpl::_1
                   >
-            > { };
+            >::type { };
 
     /* from a indices list compute the list of repeated */
     template <typename ILIST>
@@ -87,19 +99,117 @@ namespace ama
               ILIST
             , mpl::vector0<>
             , mpl::if_<
-                    mpl::greater<
-                          mpl::count<ILIST, mpl::_2>
-                        , mpl::size_t<1>
+                    mpl::and_<
+                          mpl::greater<
+                                mpl::count<ILIST, mpl::_2>
+                              , mpl::size_t<1>
+                              >
+                        , mpl::not_<
+                                mpl::contains<
+                                mpl::_1
+                              , mpl::_2
+                              >
+                              >
                         >
                   , mpl::push_back<mpl::_1, mpl::_2>
-                  , mpl::_2
+                  , mpl::_1
                   >
-            > { };
+            >::type { };
 
     /* check if all indices are repeated */
     template <typename ILIST>
     struct all_repeated_indices:
-        mpl::empty< not_repeated_indices<ILIST> > { };
+        mpl::fold<
+              ILIST
+            , mpl::true_
+            , mpl::and_<
+                  mpl::_1
+                , mpl::greater<
+                        mpl::count<ILIST, mpl::_2>
+                      , mpl::size_t<1>
+                      >
+                >
+            >::type { };
+
+    /* compute the controvariant index of index expression */
+    template <typename TENSOR, typename ILIST>
+    struct iexp_controvariant:
+        mpl::fold<
+              mpl::iterator_range<
+                    typename mpl::begin<ILIST>::type
+                  , typename mpl::advance<
+                          typename mpl::begin<ILIST>::type
+                        , typename TENSOR::controvariant_type
+                        >::type
+                  >
+            , mpl::vector0<>
+            , mpl::push_back<mpl::_1, mpl::_2>
+            >::type { };
+
+    /* compute the covariant index of index expression */
+    template <typename TENSOR, typename ILIST>
+    struct iexp_covariant:
+        mpl::fold<
+              mpl::iterator_range<
+                    typename mpl::advance<
+                          typename mpl::begin<ILIST>::type
+                        , typename TENSOR::controvariant_type
+                        >::type
+                  , typename mpl::end<ILIST>::type
+                  >
+            , mpl::vector0<>
+            , mpl::push_back<mpl::_1, mpl::_2>
+            >::type { };
+
+    /* compute the controvariant unique indices */
+    template <typename TENSOR, typename ILIST>
+    struct iexp_controvariant_unique:
+        mpl::fold<
+              iexp_controvariant<TENSOR, ILIST>
+            , mpl::vector0<>
+            , mpl::if_<
+                    mpl::contains<
+                          iexp_covariant<TENSOR, ILIST>
+                        , mpl::_2
+                        >
+                  , mpl::_1
+                  , mpl::push_back<mpl::_1, mpl::_2>
+                  >
+            >::type { };
+
+    /* compute the covariant unique indices */
+    template <typename TENSOR, typename ILIST>
+    struct iexp_covariant_unique:
+        mpl::fold<
+              typename iexp_covariant<TENSOR, ILIST>::type
+            , mpl::vector0<>
+            , mpl::if_<
+                    mpl::contains<
+                          iexp_controvariant<TENSOR, ILIST>
+                        , mpl::_2
+                        >
+                  , mpl::_1
+                  , mpl::push_back<mpl::_1, mpl::_2>
+                  >
+            >::type { };
+
+    /* compute the type whe to reduce */
+    template <typename TENSOR, typename ILIST>
+    struct iexp_reduced_tensor
+    {
+      typedef iexp_controvariant_unique<TENSOR, ILIST> controvariant;
+      typedef iexp_covariant_unique<TENSOR, ILIST> covariant;
+
+      typedef typename TENSOR::value_type value_type;
+      typedef typename TENSOR::dimension_type dimension;
+
+      typedef ama::tensor<
+            value_type
+          , dimension::value
+          , mpl::size<controvariant>::value
+          , mpl::size<covariant>::value
+          > type;
+    };
 
     /* compute the return type of an iexp expression */
     template <typename TENSOR, typename ILIST, typename CONST>
@@ -109,14 +219,47 @@ namespace ama
             , mpl::if_<
                     all_repeated_indices<ILIST>
                   , typename TENSOR::value_type
-                  , iexp_temporary<TENSOR, typename not_repeated_indices<ILIST>::type>
+                  , iexp_temporary<
+                          typename iexp_reduced_tensor<TENSOR, ILIST>::type
+                        , typename not_repeated_indices<ILIST>::type
+                        >
                   >
             , mpl::if_<
                     CONST
                   , iexp_constant<TENSOR, ILIST>
                   , iexp_mutable<TENSOR, ILIST>
                   >
-            >::type { };
+            >::type
+    {
+      /* FIXME probably inverted indeces in not_repeated_indices<ILIST>::type (fixed) */
+
+      typedef typename mpl::fold<
+            ILIST
+          , mpl::size_t<0>
+          , mpl::max<
+                  mpl::_1
+                , mpl::count<ILIST, mpl::_1>
+                >
+          >::type max_;
+
+      /* check if the indeces are repeated at most twice */
+      BOOST_MPL_ASSERT_MSG(
+            (mpl::less_equal< max_, mpl::size_t<2> >::type::value)
+          , AN_INDEX_COULD_BE_REPEATED_AT_MOST_TWICE
+          , (TENSOR, ILIST));
+
+      typedef typename iexp_controvariant<TENSOR,ILIST>::type controvariant_;
+      typedef typename iexp_covariant<TENSOR,ILIST>::type covariant_;
+
+      typedef typename mpl::not_< has_repeated_indices<controvariant_> >::type bct_;
+      typedef typename mpl::not_< has_repeated_indices<covariant_> > bco_;
+
+      /* check for reduced indeces */
+      BOOST_MPL_ASSERT_MSG(
+            (mpl::and_<bct_,bco_>::type::value)
+          , YOU_CANNOT_REDUCE_TWO_INDICES_OF_SAME_TYPE
+          , (TENSOR, ILIST));
+    };
 
   }
 }

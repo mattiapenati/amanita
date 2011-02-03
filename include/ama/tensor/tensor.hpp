@@ -42,6 +42,8 @@
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/size_t.hpp>
 
+#include <boost/mpl/print.hpp>
+
 namespace ama
 {
 
@@ -138,7 +140,8 @@ namespace ama
           , (ILIST));
 
       typedef typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::false_>::type what;
-      return tensor_::iexp_factory<what>::apply(*this);
+
+      return tensor_::iexp_factory<what>::template apply<ILIST>(*this);
     }
 
     template <typename ILIST>
@@ -153,7 +156,8 @@ namespace ama
           , (ILIST));
 
       typedef typename tensor_::iexp_calculator<tensor, ILIST, ::boost::mpl::true_>::type what;
-      return tensor_::iexp_factory<what>::apply(*this);
+
+      return tensor_::iexp_factory<what>::template apply<ILIST>(*this);
     }
 /* ============================ INDEX EXPRESSION ============================ */
   };
