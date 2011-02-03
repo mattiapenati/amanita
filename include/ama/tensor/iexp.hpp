@@ -35,11 +35,6 @@
 #include <ama/tensor/iexp/iexp_cwise_binary.hpp>
 #include <ama/tensor/operator.hpp>
 
-#include <ama/tensor/iexp/iexp_base.hpp>
-#include <ama/tensor/iexp/iexp_constant.hpp>
-#include <ama/tensor/iexp/iexp_mutable.hpp>
-#include <ama/tensor/iexp/iexp_temporary.hpp>
-
 namespace ama
 {
 

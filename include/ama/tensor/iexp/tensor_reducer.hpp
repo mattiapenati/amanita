@@ -33,8 +33,10 @@
 #include <ama/tensor/iexp/iexp_calculator.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
 #include <ama/tensor/iexp/sum.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/size.hpp>
+#include <boost/mpl/equal_to.hpp>
 
 namespace ama
 {
@@ -91,19 +93,22 @@ namespace ama
       {
         namespace mpl = ::boost::mpl;
 
-        typedef typename not_repeated_indices<ILIST>::type indeces; /* other indices */
-        typedef typename repeated_indices<ILIST>::type sum_indeces; /* index of sum */
+        typedef typename not_repeated_indices<ILIST>::type indices; /* other indices */
+        typedef typename repeated_indices<ILIST>::type sum_indices; /* index of sum */
 
-        /* TODO check size<IND> == size<indices> */
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::equal_to< mpl::size<IND> , mpl::size<indices> >::value)
+            , YOU_GIVE_A_INCORRECT_LIST_OF_INDICES
+            , (IND));
 
         /* indeces (not for sum) */
-        typedef typename make_imap<indeces, IND>::type imap;
+        typedef typename make_imap<indices, IND>::type imap;
 
         /* others */
         typedef typename TENSOR::dimension_type dimension;
-        typedef typename mpl::size<sum_indeces>::type order;
+        typedef typename mpl::size<sum_indices>::type order;
 
-        return sum<dimension, order>::template apply<imap, sum_indeces>(m_iexp);
+        return sum<dimension, order>::template apply<imap, sum_indices>(m_iexp);
       }
 
     protected:

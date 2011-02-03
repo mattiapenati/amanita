@@ -31,9 +31,12 @@
 
 #include <ama/tensor/iexp/iexp_copy.hpp>
 #include <ama/tensor/detail/copy.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/fold.hpp>
 #include <boost/mpl/insert.hpp>
 #include <boost/mpl/placeholders.hpp>
+#include <boost/mpl/size.hpp>
 
 namespace ama
 {
@@ -56,7 +59,10 @@ namespace ama
       typename IEXP::value_type
       apply(IEXP const & iexp)
       {
-        /* TODO check: I and ISUM must have the same size */
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::equal_to< mpl::size<I> , mpl::size<ISUM> >::value)
+            , YOU_GIVE_A_INCORRECT_LIST_OF_INDICES
+            , (I, ISUM));
 
         /* append to map */
         typedef typename mpl::fold<
@@ -78,6 +84,9 @@ namespace ama
                sum<D,O,i,r>::template apply<IMAP, ISUM>(iexp);
       }
     };
+
+
+
 
     /* partial specialization, end the iterative call */
     template <typename D, typename O, typename I>

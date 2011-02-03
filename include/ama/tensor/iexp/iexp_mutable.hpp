@@ -32,6 +32,8 @@
 #include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
 #include <ama/tensor/iexp/iexp_copy.hpp>
+#include <ama/tensor/iexp/is_same_iexp.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 
 namespace ama
@@ -112,7 +114,10 @@ namespace ama
       iexp_mutable &
       operator=(iexp_base<DERIVED> const & ie)
       {
-        /* TODO implement is_same_iexp */
+        BOOST_MPL_ASSERT_MSG(
+              (is_same_iexp<derived_type,DERIVED>::value)
+            , COMPONENT_WISE_BINARY_OPERATION_BETWEEN_DIFFERENT_TENSORS_ARE_NOT_ALLOWED
+            , (DERIVED));
 
         iexp_copy<dimension_type,order_type>::apply(ie.derived(), *this);
         return *this;

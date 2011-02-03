@@ -30,6 +30,8 @@
 #define AMA_TENSOR_IEXP_IEXP_CWISE_BINARY_HPP 1
 
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/iexp/is_same_iexp.hpp>
+#include <boost/mpl/assert.hpp>
 
 namespace ama
 {
@@ -62,7 +64,10 @@ namespace ama
     class iexp_cwise_binary:
         public iexp_base< iexp_cwise_binary<LEFT, RIGHT, OPERATOR> >
     {
-      /* TODO check if LEFT and RIGHT are the same iexp */
+      BOOST_MPL_ASSERT_MSG(
+            (is_same_iexp<LEFT,RIGHT>::value)
+          , COMPONENT_WISE_BINARY_OPERATION_BETWEEN_DIFFERENT_EXPRESSION_ARE_NOT_ALLOWED
+          , (LEFT, RIGHT));
 
     protected:
       typedef iexp_base< iexp_cwise_binary<LEFT, RIGHT, OPERATOR> > base_type;

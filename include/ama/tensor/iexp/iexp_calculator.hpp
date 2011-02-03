@@ -32,6 +32,7 @@
 #include <ama/common/size_t.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
 #include <ama/tensor/iexp/iexp_mutable.hpp>
+#include <ama/tensor/iexp/iexp_temporary.hpp>
 #include <boost/mpl/advance.hpp>
 #include <boost/mpl/begin_end.hpp>
 #include <boost/mpl/comparison.hpp>
@@ -231,8 +232,6 @@ namespace ama
                   >
             >::type
     {
-      /* FIXME probably inverted indeces in not_repeated_indices<ILIST>::type (fixed) */
-
       typedef typename mpl::fold<
             ILIST
           , mpl::size_t<0>

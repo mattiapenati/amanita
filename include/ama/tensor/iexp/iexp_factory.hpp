@@ -52,8 +52,6 @@ namespace ama
       static
       WHAT apply(TENSOR const & t)
       {
-        /* TODO implement reduce over all indeces */
-
         BOOST_MPL_ASSERT_MSG(
               (mpl::equal<WHAT, typename TENSOR::value_type>::type::value)
             , THIS_STRUCT_CAN_BE_CALLED_ONLY_TO_REDUCE_OVER_ALL_INDICES
