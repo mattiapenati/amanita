@@ -32,6 +32,7 @@
 #include <ama/tensor/config.hpp>
 #include <ama/tensor/copy.hpp>
 #include <ama/tensor/detail/tensor_base.hpp>
+#include <ama/tensor/iexp/iexp.hpp>
 #include <ama/tensor/iexp/iexp_calculator.hpp>
 #include <ama/tensor/iexp/iexp_factory.hpp>
 #include <ama/common/size_t.hpp>
@@ -41,8 +42,6 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/size_t.hpp>
-
-#include <boost/mpl/print.hpp>
 
 namespace ama
 {
@@ -78,8 +77,11 @@ namespace ama
   /* class declaration */
   template <typename S, size_t D, size_t CT, size_t CO>
   class tensor:
-      public tensor_::tensor_base< tensor<S,D,CT,CO> >,
-      public multi_array<S,D,CT+CO>
+        public tensor_::tensor_base< tensor<S,D,CT,CO> >
+      , public multi_array<S,D,CT+CO>
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+      , public tensor_::iexp< tensor<S,D,CT,CO>, CT+CO >
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
   {
   public:
     /* resolv the ambiguity */
@@ -124,6 +126,13 @@ namespace ama
       ama::copy(t.derived(), *this);
       return *this;
     }
+
+
+#ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
+  public:
+    using multi_array<S,D,CT+CO>::operator();
+    using tensor_::iexp< tensor<S,D,CT,CO>, CT+CO >::operator();
+#endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
 
 /* ============================ INDEX EXPRESSION ============================ */
   public:
