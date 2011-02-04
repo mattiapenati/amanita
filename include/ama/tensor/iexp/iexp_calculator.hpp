@@ -30,9 +30,11 @@
 #define AMA_TENSOR_IEXP_IEXP_CALCULATOR_HPP 1
 
 #include <ama/common/size_t.hpp>
+/* TODO substitute with forward declarations */
 #include <ama/tensor/iexp/iexp_constant.hpp>
 #include <ama/tensor/iexp/iexp_mutable.hpp>
 #include <ama/tensor/iexp/iexp_temporary.hpp>
+/* ENDTODO */
 #include <boost/mpl/advance.hpp>
 #include <boost/mpl/begin_end.hpp>
 #include <boost/mpl/comparison.hpp>

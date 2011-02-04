@@ -45,6 +45,10 @@ namespace ama
 
     namespace mpl = ::boost::mpl;
 
+    /* apply the sum: a trick to remove the last operation */
+    template <typename T> T sum_op(T const & a, T const & b) { return a + b; }
+    template <typename T> T sum_op(T const & a, mpl::na const &) { return a; }
+
     /* this struct implement the sum */
     template <
           typename D               /* the dimensione of tensor */
@@ -80,8 +84,8 @@ namespace ama
         typedef typename mpl::second<increment_type>::type r;
 
         /* return */
-        return iexp.template at<imap>() +
-               sum<D,O,i,r>::template apply<IMAP, ISUM>(iexp);
+        return sum_op(iexp.template at<imap>(),
+                      sum<D,O,i,r>::template apply<IMAP, ISUM>(iexp));
       }
     };
 
@@ -93,13 +97,7 @@ namespace ama
     struct sum<D,O,I,mpl::true_>
     {
       template <typename IMAP, typename ISUM, typename IEXP>
-      static
-      typename IEXP::value_type
-      apply(IEXP const &)
-      {
-        typedef typename IEXP::value_type value_type;
-        return value_type();
-      }
+      static mpl::na apply(IEXP const &) { return mpl::na(); }
     };
 
   }

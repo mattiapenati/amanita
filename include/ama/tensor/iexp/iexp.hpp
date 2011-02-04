@@ -52,6 +52,9 @@ namespace ama
 
     namespace mpl = ::boost::mpl;
 
+
+
+
 #define AMA_TENSOR_IEXP_CONCAT_COMMA(z, n, data) \
   BOOST_PP_COMMA_IF(n) BOOST_PP_CAT(data, n)
 
@@ -85,7 +88,7 @@ namespace ama
       typename iexp_calculator<DERIVED, AMA_TENSOR_IEXP_LIST(n) , mpl::true_>::type \
       operator()( AMA_TENSOR_IEXP_ARGOUMENTS(n) ) const \
       { \
-        return static_cast<DERIVED *>(this)->template idx< AMA_TENSOR_IEXP_LIST(n) >(); \
+        return static_cast<DERIVED const *>(this)->template idx< AMA_TENSOR_IEXP_LIST(n) >(); \
       } \
     };
 
@@ -105,6 +108,8 @@ namespace ama
 #undef AMA_TENSOR_IEXP_ARGOUMENTS
 #undef AMA_TENSOR_IEXP_SPECIALIZATION
 #undef AMA_TENSOR_IEPX_MACRO
+
+
 
 
   }

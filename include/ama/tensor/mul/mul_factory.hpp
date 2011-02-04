@@ -26,17 +26,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_HPP
-#define AMA_TENSOR_HPP 1
+#ifndef AMA_TENSOR_MUL_MUL_FACTORY_HPP
+#define AMA_TENSOR_MUL_MUL_FACTORY_HPP 1
 
-#include <ama/tensor/config.hpp>
-#include <ama/tensor/copy.hpp>
-#include <ama/tensor/get.hpp>
-#include <ama/tensor/iexp.hpp>
-#include <ama/tensor/index.hpp>
-#include <ama/tensor/mul.hpp>
-#include <ama/tensor/operator.hpp>
-#include <ama/tensor/outer.hpp>
-#include <ama/tensor/tensor.hpp>
+#include <ama/tensor/mul/mul_outer.hpp>
 
-#endif /* AMA_TENSOR_HPP */
+namespace ama
+{
+  namespace tensor_
+  {
+
+    /* forward declaration*/
+    template <typename LEFT, typename RIGHT> class mul_outer;
+
+    /* reduction over all indices */
+    template <typename WHAT>
+    struct mul_factory
+    {
+      template <typename LEFT, typename RIGHT>
+      static
+      WHAT apply(LEFT const & left, RIGHT const & right);
+    };
+
+
+    /* specialization for outer product */
+    template <typename LEFT, typename RIGHT>
+    struct mul_factory< mul_outer<LEFT, RIGHT> >
+    {
+      template <typename VOID>
+      static
+      mul_outer<LEFT, RIGHT> apply(LEFT const & left,
+                                   RIGHT const & right)
+      {
+        return mul_outer<LEFT, RIGHT>(left,right);
+      }
+    };
+
+  }
+}
+
+#endif /* AMA_TENSOR_MUL_MUL_FACTORY_HPP */

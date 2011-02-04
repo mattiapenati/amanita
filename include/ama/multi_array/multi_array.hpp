@@ -94,7 +94,7 @@ namespace ama
       rangecheck<ILIST>();
       typedef typename multi_array_::index_compiletime<dimension_type,ILIST>::type index;
 
-      return m_data.at(index::value);
+      return m_data[index::value];
     }
 
     /* get a component from a multi-index (Boost.MPL - Forward Sequence) */
@@ -104,7 +104,7 @@ namespace ama
       rangecheck<ILIST>();
       typedef typename multi_array_::index_compiletime<dimension_type,ILIST>::type index;
 
-      return m_data.at(index::value);
+      return m_data[index::value];
     }
 
 #ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS

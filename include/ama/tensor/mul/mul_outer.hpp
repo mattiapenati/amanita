@@ -26,11 +26,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_IEXP_IEXP_OUTER_HPP
-#define AMA_TENSOR_IEXP_IEXP_OUTER_HPP 1
+#ifndef AMA_TENSOR_MUL_IEXP_OUTER_HPP
+#define AMA_TENSOR_MUL_IEXP_OUTER_HPP 1
 
 #include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/mul/mul_calculator.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/plus.hpp>
 
@@ -40,12 +41,12 @@ namespace ama
   {
 
     /* forward declaration*/
-    template <typename LEFT, typename RIGHT> class iexp_outer;
+    template <typename LEFT, typename RIGHT> class mul_outer;
 
 
     /* traits definition */
     template <typename LEFT, typename RIGHT>
-    struct iexp_traits< iexp_outer<LEFT, RIGHT> >
+    struct iexp_traits< mul_outer<LEFT, RIGHT> >
     {
       typedef typename LEFT::value_type value_type;
 
@@ -60,18 +61,20 @@ namespace ama
                            , typename RIGHT::covariant_type
                            >::type covariant_type;
 
+      typedef typename mul_outer_index<LEFT, RIGHT>::index_list index_list;
+
       typedef ::boost::mpl::false_ is_assignable;
     };
 
 
     /* class declaration */
     template <typename LEFT, typename RIGHT>
-    class iexp_outer:
-        public iexp_base< iexp_outer<LEFT, RIGHT> >
+    class mul_outer:
+        public iexp_base< mul_outer<LEFT, RIGHT> >
     {
     protected:
-      typedef iexp_base< iexp_outer<LEFT, RIGHT> > base_type;
-      typedef iexp_outer<LEFT, RIGHT> derived_type;
+      typedef iexp_base< mul_outer<LEFT, RIGHT> > base_type;
+      typedef mul_outer<LEFT, RIGHT> derived_type;
 
     protected:
       typedef LEFT left_operand_type;
@@ -82,7 +85,7 @@ namespace ama
 
     public:
       /* costructor */
-      iexp_outer(left_operand_type const & left,
+      mul_outer(left_operand_type const & left,
                  right_operand_type const & right)
           : m_left(left),
             m_right(right) { }
@@ -92,13 +95,7 @@ namespace ama
       template <typename IMAP>
       value_type at() const
       {
-        typedef typename LEFT::index_list l_ilist;
-        typedef typename RIGHT::index_list r_ilist;
-
-        typedef typename index_reorder<IMAP, l_ilist>::type lilist;
-        typedef typename index_reorder<IMAP, r_ilist>::type rilist;
-
-        return (m_left.template at<lilist>()) * (m_right.template at<rilist>());
+        return (m_left.template at<IMAP>()) * (m_right.template at<IMAP>());
       }
 
     protected:
@@ -110,4 +107,4 @@ namespace ama
   }
 }
 
-#endif /* AMA_TENSOR_IEXP_IEXP_OUTER_HPP */
+#endif /* AMA_TENSOR_MUL_IEXP_OUTER_HPP */
