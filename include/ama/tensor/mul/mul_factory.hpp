@@ -30,15 +30,15 @@
 #define AMA_TENSOR_MUL_MUL_FACTORY_HPP 1
 
 #include <ama/tensor/mul/mul_outer.hpp>
+#include <ama/tensor/mul/mul_reducer.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/equal.hpp>
+#include <boost/mpl/vector/vector0_c.hpp>
 
 namespace ama
 {
   namespace tensor_
   {
-
-    /* forward declaration*/
-    template <typename LEFT, typename RIGHT> class mul_outer;
-
 
     /* reduction over all indices */
     template <typename WHAT>
@@ -46,19 +46,34 @@ namespace ama
     {
       template <typename LEFT, typename RIGHT>
       static
-      WHAT apply(LEFT const & left, RIGHT const & right);
+      WHAT apply(LEFT const & left, RIGHT const & right)
+      {
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::equal<WHAT, typename LEFT::value_type>::type::value)
+            , THIS_STRUCT_CAN_BE_CALLED_ONLY_TO_REDUCE_OVER_ALL_INDICES
+            , (WHAT));
+
+        return mul_reducer<LEFT,RIGHT>(left, right).template at< ::boost::mpl::vector0_c<size_t> >();
+      }
     };
+
+
 
 
     /* specialization for reduction of product */
-    template <typename TENSOR, typename ILIST>
-    struct mul_factory< iexp_temporary<TENSOR, ILIST> >
+    template <typename TENSOR, typename CTLIST, typename COLIST>
+    struct mul_factory< iexp_temporary<TENSOR,CTLIST,COLIST> >
     {
       template <typename LEFT, typename RIGHT>
       static
-      iexp_temporary<TENSOR, ILIST> apply(LEFT const & left,
-                                          RIGHT const & right); /* TODO */
+      iexp_temporary<TENSOR,CTLIST,COLIST> apply(LEFT const & left,
+                                                 RIGHT const & right)
+      {
+        return iexp_temporary<TENSOR,CTLIST,COLIST>(mul_reducer<LEFT,RIGHT>(left,right));
+      }
     };
+
+
 
 
     /* specialization for outer product */

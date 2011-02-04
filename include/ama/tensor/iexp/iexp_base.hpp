@@ -33,6 +33,7 @@
 #include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/plus.hpp>
 #include <boost/mpl/push_back.hpp>
+#include <boost/mpl/size.hpp>
 
 namespace ama
 {
@@ -69,15 +70,15 @@ namespace ama
 
       typedef typename iexp_traits<DERIVED>::dimension_type dimension_type;
 
-      typedef typename iexp_traits<DERIVED>::controvariant_type controvariant_type;
-      typedef typename iexp_traits<DERIVED>::covariant_type covariant_type;
-
-      typedef typename ::boost::mpl::plus<controvariant_type,covariant_type>::type order_type;
-
       typedef typename iexp_traits<DERIVED>::controvariant_list controvariant_list;
       typedef typename iexp_traits<DERIVED>::covariant_list covariant_list;
 
       typedef typename mpl::fold< covariant_list, controvariant_list, mpl::push_back<mpl::_1, mpl::_2> >::type index_list;
+
+      typedef mpl::size<controvariant_list> controvariant_type;
+      typedef mpl::size<covariant_list> covariant_type;
+
+      typedef typename ::boost::mpl::plus<controvariant_type,covariant_type>::type order_type;
 
       typedef typename iexp_traits<DERIVED>::is_assignable is_assignable;
 

@@ -93,16 +93,16 @@ namespace ama
       {
         namespace mpl = ::boost::mpl;
 
-        typedef typename iexp_reduce<TENSOR,ILIST>::index_list indices; /* other indices */
+        typedef typename iexp_reduce<TENSOR,ILIST>::index_list index_list; /* other indices */
         typedef typename iexp_reduce<TENSOR,ILIST>::reduce_list sum_indices; /* index of sum */
 
         BOOST_MPL_ASSERT_MSG(
-              (mpl::equal_to< mpl::size<IND> , mpl::size<indices> >::value)
+              (mpl::equal_to< mpl::size<IND> , mpl::size<index_list> >::value)
             , YOU_GIVE_A_INCORRECT_LIST_OF_INDICES
             , (IND));
 
         /* indeces (not for sum) */
-        typedef typename make_imap<indices, IND>::type imap;
+        typedef typename make_imap<index_list, IND>::type imap;
 
         /* others */
         typedef typename TENSOR::dimension_type dimension;

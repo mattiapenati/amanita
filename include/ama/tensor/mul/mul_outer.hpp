@@ -52,16 +52,8 @@ namespace ama
 
       typedef typename LEFT::dimension_type dimension_type;
 
-      typedef typename ::boost::mpl::plus<
-                             typename LEFT::controvariant_type
-                           , typename RIGHT::controvariant_type
-                           >::type controvariant_type;
-      typedef typename ::boost::mpl::plus<
-                             typename LEFT::covariant_type
-                           , typename RIGHT::covariant_type
-                           >::type covariant_type;
-
-      typedef typename mul_outer_index<LEFT, RIGHT>::index_list index_list;
+      typedef typename mul_index<LEFT, RIGHT>::controvariant_list controvariant_list;
+      typedef typename mul_index<LEFT, RIGHT>::covariant_list covariant_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };

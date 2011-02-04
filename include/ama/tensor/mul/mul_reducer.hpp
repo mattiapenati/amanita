@@ -26,16 +26,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef AMA_TENSOR_MUL_MUL_TEMPORARY_HPP
-#define AMA_TENSOR_MUL_MUL_TEMPORARY_HPP 1
+#ifndef AMA_TENSOR_MUL_MUL_REDUCER_HPP
+#define AMA_TENSOR_MUL_MUL_REDUCER_HPP 1
 
-#include <ama/tensor/iexp/index_reorder.hpp>
-#include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/detail/tensor_base.hpp>
 #include <ama/tensor/mul/mul_calculator.hpp>
+#include <ama/tensor/mul/mul_temporary.hpp>
+#include <ama/tensor/iexp/iexp_copy.hpp>
+#include <ama/tensor/iexp/indices.hpp>
+#include <ama/tensor/iexp/sum.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/plus.hpp>
-
-/* this class is used to store a temporary expression before the reduction */
 
 namespace ama
 {
@@ -43,59 +43,81 @@ namespace ama
   {
 
     /* forward declaration */
-    template <typename LEFT, typename RIGHT> class mul_temporary;
+    template <typename LEFT, typename RIGHT> class mul_reducer;
 
 
-    /* specialization of iexp traits */
+    /* specialization of traits */
     template <typename LEFT, typename RIGHT>
-    struct iexp_traits< mul_temporary<LEFT, RIGHT> >
+    struct tensor_traits< mul_reducer<LEFT, RIGHT> >
     {
       typedef typename LEFT::value_type value_type;
 
       typedef typename LEFT::dimension_type dimension_type;
 
-      typedef typename mul_index<LEFT, RIGHT>::controvariant_list controvariant_list;
-      typedef typename mul_index<LEFT, RIGHT>::covariant_list covariant_list;
+      typedef mpl::size<typename iexp_reduce<
+            typename mul_index<LEFT, RIGHT>::tensor_type
+          , typename mul_index<LEFT, RIGHT>::index_list
+          >::controvariant> controvariant_type;
+      typedef mpl::size<typename iexp_reduce<
+            typename mul_index<LEFT, RIGHT>::tensor_type
+          , typename mul_index<LEFT, RIGHT>::index_list
+          >::covariant> covariant_type;
 
       typedef ::boost::mpl::false_ is_assignable;
+      typedef ::boost::mpl::true_ is_temporary;
     };
 
 
     /* class declaration */
     template <typename LEFT, typename RIGHT>
-    class mul_temporary:
-        public iexp_base< mul_temporary<LEFT, RIGHT> >
+    class mul_reducer:
+          public tensor_base< mul_reducer<LEFT, RIGHT> >
     {
     protected:
-      typedef iexp_base< mul_temporary<LEFT, RIGHT> > base_type;
+      typedef tensor_base< mul_reducer<LEFT, RIGHT> > base_type;
+      typedef mul_reducer<LEFT, RIGHT> derived_type;
 
       typedef LEFT left_operand;
       typedef RIGHT right_operand;
 
+      typedef mul_temporary<left_operand, right_operand> iexp_type;
+
     public:
       /* constructor */
-      mul_temporary(left_operand const & left,
-                    right_operand const & right)
-          : m_left(left),
-            m_right(right) { }
+      mul_reducer(left_operand const & left,
+                  right_operand const & right)
+          : m_iexp(left, right) { }
 
     public:
       typedef typename base_type::value_type value_type;
+      typedef typename base_type::dimension_type dimension_type;
 
-      /* retrieve the value */
-      template <typename IMAP>
+      template <typename ILIST>
       value_type at() const
       {
-        return m_left.template at<IMAP>() * m_right.template at<IMAP>();
+        typedef typename iexp_reduce<
+              typename mul_index<LEFT, RIGHT>::tensor_type
+            , typename mul_index<LEFT, RIGHT>::index_list
+            >::index_list index_list; /* other indices */
+        typedef typename iexp_reduce<
+              typename mul_index<LEFT, RIGHT>::tensor_type
+            , typename mul_index<LEFT, RIGHT>::index_list
+            >::reduce_list sum_indices; /* index of sum */
+
+        /* TODO check size<ILIST> == size<index_list> */
+
+        /* indeces (not for sum) */
+        typedef typename make_imap<index_list, ILIST>::type imap;
+        typedef typename mpl::size<sum_indices>::type order;
+
+        return sum<dimension_type, order>::template apply<imap, sum_indices>(m_iexp);
       }
 
     protected:
-      left_operand const m_left;
-      right_operand const m_right;
+      iexp_type const m_iexp;
     };
-
 
   }
 }
 
-#endif /* AMA_TENSOR_MUL_MUL_TEMPORARY_HPP */
+#endif /* AMA_TENSOR_MUL_MUL_REDUCER_HPP */

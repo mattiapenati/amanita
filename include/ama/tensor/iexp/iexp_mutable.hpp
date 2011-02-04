@@ -53,9 +53,6 @@ namespace ama
 
       typedef typename TENSOR::dimension_type dimension_type;
 
-      typedef typename TENSOR::controvariant_type controvariant_type;
-      typedef typename TENSOR::covariant_type covariant_type;
-
       typedef CTLIST controvariant_list;
       typedef COLIST covariant_list;
 

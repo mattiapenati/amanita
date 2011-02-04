@@ -50,9 +50,6 @@ namespace ama
 
       typedef typename LEFT::dimension_type dimension_type;
 
-      typedef typename LEFT::controvariant_type controvariant_type;
-      typedef typename LEFT::covariant_type covariant_type;
-
       typedef typename LEFT::controvariant_list controvariant_list;
       typedef typename LEFT::covariant_list covariant_list;
 
