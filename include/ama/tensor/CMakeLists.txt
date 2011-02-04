@@ -4,3 +4,4 @@ install(FILES ${ama_ten}
 
 add_subdirectory(detail)
 add_subdirectory(iexp)
+add_subdirectory(mul)
