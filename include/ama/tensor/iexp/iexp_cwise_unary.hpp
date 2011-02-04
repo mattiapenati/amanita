@@ -51,7 +51,8 @@ namespace ama
       typedef typename OPERAND::controvariant_type controvariant_type;
       typedef typename OPERAND::covariant_type covariant_type;
 
-      typedef typename OPERAND::index_list index_list;
+      typedef typename OPERAND::controvariant_list controvariant_list;
+      typedef typename OPERAND::covariant_list covariant_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };

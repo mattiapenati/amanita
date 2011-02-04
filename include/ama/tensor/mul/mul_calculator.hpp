@@ -108,7 +108,7 @@ namespace ama
     struct mul_calculator:
           mpl::if_<
                 has_repeated_indices<typename mul_outer_index<LEFT, RIGHT>::index_list>
-              , mpl::if_<
+              , typename mpl::if_<
                       all_repeated_indices<typename mul_outer_index<LEFT, RIGHT>::index_list>
                     , typename LEFT::value_type
                     , iexp_temporary<
@@ -118,7 +118,7 @@ namespace ama
                                 >::type
                           , typename not_repeated_indices<typename mul_outer_index<LEFT, RIGHT>::index_list>::type
                           >
-                    >
+                    >::type
               , mul_outer<LEFT, RIGHT>
               >
     {

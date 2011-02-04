@@ -34,7 +34,7 @@
 #include <boost/mpl/fold.hpp>
 #include <boost/mpl/push_back.hpp>
 #include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/vector/vector0_c.hpp>
+#include <boost/mpl/vector/vector0.hpp>
 
 namespace ama
 {
@@ -43,7 +43,11 @@ namespace ama
 
     namespace mpl = ::boost::mpl;
 
-    template <typename IMAP, typename ILIST>
+    /* this structure reorder the indices */
+    template <
+          typename IMAP  /* the indices map */
+        , typename ILIST /* the indices list */
+        >
     struct index_reorder:
         mpl::fold<
               ILIST

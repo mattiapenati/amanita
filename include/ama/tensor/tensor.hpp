@@ -35,6 +35,7 @@
 #include <ama/tensor/iexp/iexp.hpp>
 #include <ama/tensor/iexp/iexp_calculator.hpp>
 #include <ama/tensor/iexp/iexp_factory.hpp>
+#include <ama/tensor/iexp/indices.hpp>
 #include <ama/common/size_t.hpp>
 #include <ama/multi_array/multi_array.hpp>
 #include <boost/mpl/assert.hpp>
@@ -89,7 +90,8 @@ namespace ama
     typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::dimension_type dimension_type;
 
     /* needed */
-    typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::order_type order_type;
+    typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::controvariant_type controvariant_type;
+    typedef typename tensor_::tensor_base< tensor<S,D,CT,CO> >::covariant_type covariant_type;
 
   public:
     /* default constructor */
@@ -131,7 +133,7 @@ namespace ama
 #ifdef AMA_MULTI_ARRAY_USE_LINEAR_ACCESS
   public:
     using multi_array<S,D,CT+CO>::operator();
-    using tensor_::iexp< tensor<S,D,CT,CO>, CT+CO >::operator();
+    using tensor_::iexp< tensor<S,D,CT,CO> , CT+CO >::operator();
 #endif /* AMA_MULTI_ARRAY_USE_LINEAR_ACCESS */
 
 /* ============================ INDEX EXPRESSION ============================ */
@@ -143,8 +145,17 @@ namespace ama
     {
       namespace mpl = ::boost::mpl;
 
+      typedef mpl::equal_to<
+            mpl::size<typename tensor_::controvariant<tensor<S,D,CT,CO>, ILIST>::type>
+          , controvariant_type
+          > ct;
+      typedef mpl::equal_to<
+            mpl::size<typename tensor_::covariant<tensor<S,D,CT,CO>, ILIST>::type>
+          , covariant_type
+          > co;
+
       BOOST_MPL_ASSERT_MSG(
-            (mpl::equal_to<mpl::size<ILIST>, order_type>::value)
+            (ct::value && co::value)
           , THE_LENGTH_OF_LIST_OF_INDICES_MUST_BE_EQUAL_TO_THE_TENSOR_ORDER
           , (ILIST));
 
@@ -159,8 +170,17 @@ namespace ama
     {
       namespace mpl = ::boost::mpl;
 
+      typedef mpl::equal_to<
+            mpl::size<typename tensor_::controvariant<tensor<S,D,CT,CO>, ILIST>::type>
+          , controvariant_type
+          > ct;
+      typedef mpl::equal_to<
+            mpl::size<typename tensor_::covariant<tensor<S,D,CT,CO>, ILIST>::type>
+          , covariant_type
+          > co;
+
       BOOST_MPL_ASSERT_MSG(
-            (mpl::equal_to<mpl::size<ILIST>, order_type>::value)
+            (ct::value && co::value)
           , THE_LENGTH_OF_LIST_OF_INDICES_MUST_BE_EQUAL_TO_THE_TENSOR_ORDER
           , (ILIST));
 

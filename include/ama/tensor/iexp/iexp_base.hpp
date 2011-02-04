@@ -29,12 +29,17 @@
 #ifndef AMA_TENSOR_IEXP_IEXP_BASE_HPP
 #define AMA_TENSOR_IEXP_IEXP_BASE_HPP 1
 
+#include <boost/mpl/fold.hpp>
+#include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/plus.hpp>
+#include <boost/mpl/push_back.hpp>
 
 namespace ama
 {
   namespace tensor_
   {
+
+    namespace mpl = ::boost::mpl;
 
     /* this class is needed to retrieve the information of DERIVED type */
     template <typename T> struct iexp_traits;
@@ -53,6 +58,11 @@ namespace ama
     template <typename DERIVED>
     class iexp_base
     {
+    protected:
+      /* the foundamental types for CRTP */
+      typedef iexp_base<DERIVED> base_type;
+      typedef DERIVED derived_type;
+
     public:
       /* the type retrieved through the tensor_traits */
       typedef typename iexp_traits<DERIVED>::value_type value_type;
@@ -61,17 +71,15 @@ namespace ama
 
       typedef typename iexp_traits<DERIVED>::controvariant_type controvariant_type;
       typedef typename iexp_traits<DERIVED>::covariant_type covariant_type;
+
       typedef typename ::boost::mpl::plus<controvariant_type,covariant_type>::type order_type;
 
-      typedef typename iexp_traits<DERIVED>::index_list index_list;
+      typedef typename iexp_traits<DERIVED>::controvariant_list controvariant_list;
+      typedef typename iexp_traits<DERIVED>::covariant_list covariant_list;
+
+      typedef typename mpl::fold< covariant_list, controvariant_list, mpl::push_back<mpl::_1, mpl::_2> >::type index_list;
 
       typedef typename iexp_traits<DERIVED>::is_assignable is_assignable;
-      /* typedef typename iexp_traits<DERIVED>::is_temporary is_temporary; every iexp is temporary */
-
-    private:
-      /* the foundamental types for CRTP */
-      typedef iexp_base<DERIVED> base_type;
-      typedef DERIVED derived_type;
 
     public:
       /* cast the object to the base class */

@@ -30,11 +30,7 @@
 #define AMA_TENSOR_IEXP_IEXP_CALCULATOR_HPP 1
 
 #include <ama/common/size_t.hpp>
-/* TODO substitute with forward declarations */
-#include <ama/tensor/iexp/iexp_constant.hpp>
-#include <ama/tensor/iexp/iexp_mutable.hpp>
-#include <ama/tensor/iexp/iexp_temporary.hpp>
-/* ENDTODO */
+#include <ama/tensor/iexp/indices.hpp>
 #include <boost/mpl/advance.hpp>
 #include <boost/mpl/begin_end.hpp>
 #include <boost/mpl/comparison.hpp>
@@ -50,12 +46,21 @@
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/vector/vector0.hpp>
 
-
+/* forward declaration */
 namespace ama
 {
-  /* forward declaration */
   template <typename T, size_t D, size_t CT, size_t CO> class tensor;
+
+  namespace tensor_
+  {
+    template <typename TENSOR, typename CTLIST, typename COLIST> class iexp_constant;
+    template <typename TENSOR, typename CTLIST, typename COLIST> class iexp_mutable;
+    template <typename TENSOR, typename CTLIST, typename COLIST> class iexp_temporary;
+  }
 }
+
+
+
 
 namespace ama
 {
@@ -134,105 +139,34 @@ namespace ama
                 >
             >::type { };
 
-    /* compute the controvariant index of index expression */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_controvariant:
-        mpl::fold<
-              mpl::iterator_range<
-                    typename mpl::begin<ILIST>::type
-                  , typename mpl::advance<
-                          typename mpl::begin<ILIST>::type
-                        , typename TENSOR::controvariant_type
-                        >::type
-                  >
-            , mpl::vector0<>
-            , mpl::push_back<mpl::_1, mpl::_2>
-            >::type { };
-
-    /* compute the covariant index of index expression */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_covariant:
-        mpl::fold<
-              mpl::iterator_range<
-                    typename mpl::advance<
-                          typename mpl::begin<ILIST>::type
-                        , typename TENSOR::controvariant_type
-                        >::type
-                  , typename mpl::end<ILIST>::type
-                  >
-            , mpl::vector0<>
-            , mpl::push_back<mpl::_1, mpl::_2>
-            >::type { };
-
-    /* compute the controvariant unique indices */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_controvariant_unique:
-        mpl::fold<
-              iexp_controvariant<TENSOR, ILIST>
-            , mpl::vector0<>
-            , mpl::if_<
-                    mpl::contains<
-                          iexp_covariant<TENSOR, ILIST>
-                        , mpl::_2
-                        >
-                  , mpl::_1
-                  , mpl::push_back<mpl::_1, mpl::_2>
-                  >
-            >::type { };
-
-    /* compute the covariant unique indices */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_covariant_unique:
-        mpl::fold<
-              typename iexp_covariant<TENSOR, ILIST>::type
-            , mpl::vector0<>
-            , mpl::if_<
-                    mpl::contains<
-                          iexp_controvariant<TENSOR, ILIST>
-                        , mpl::_2
-                        >
-                  , mpl::_1
-                  , mpl::push_back<mpl::_1, mpl::_2>
-                  >
-            >::type { };
-
-    /* compute the type whe to reduce */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_reduced_tensor
-    {
-      typedef iexp_controvariant_unique<TENSOR, ILIST> controvariant;
-      typedef iexp_covariant_unique<TENSOR, ILIST> covariant;
-
-      typedef typename TENSOR::value_type value_type;
-      typedef typename TENSOR::dimension_type dimension;
-
-      typedef ama::tensor<
-            value_type
-          , dimension::value
-          , mpl::size<controvariant>::value
-          , mpl::size<covariant>::value
-          > type;
-    };
-
     /* compute the return type of an iexp expression */
     template <typename TENSOR, typename ILIST, typename CONST>
     struct iexp_calculator:
         mpl::if_<
               has_repeated_indices<ILIST>
-            , mpl::if_<
+            , typename mpl::if_<
                     all_repeated_indices<ILIST>
                   , typename TENSOR::value_type
                   , iexp_temporary<
-                          typename iexp_reduced_tensor<TENSOR, ILIST>::type
-                        , typename not_repeated_indices<ILIST>::type
+                          typename iexp_reduce<TENSOR, ILIST>::tensor_type
+                        , typename iexp_reduce<TENSOR, ILIST>::controvariant
+                        , typename iexp_reduce<TENSOR, ILIST>::covariant
                         >
-                  >
-            , mpl::if_<
+                  >::type
+            , typename mpl::if_<
                     CONST
-                  , iexp_constant<TENSOR, ILIST>
-                  , iexp_mutable<TENSOR, ILIST>
-                  >
-            >::type
+                  , iexp_constant<
+                          TENSOR
+                        , typename controvariant<TENSOR,ILIST>::type
+                        , typename covariant<TENSOR,ILIST>::type
+                        >
+                  , iexp_mutable<
+                          TENSOR
+                        , typename controvariant<TENSOR,ILIST>::type
+                        , typename covariant<TENSOR,ILIST>::type
+                        >
+                  >::type
+            >
     {
       typedef typename mpl::fold<
             ILIST
@@ -249,8 +183,8 @@ namespace ama
           , AN_INDEX_COULD_BE_REPEATED_AT_MOST_TWICE
           , (TENSOR, ILIST));
 
-      typedef typename iexp_controvariant<TENSOR,ILIST>::type controvariant_;
-      typedef typename iexp_covariant<TENSOR,ILIST>::type covariant_;
+      typedef typename controvariant<TENSOR,ILIST>::type controvariant_;
+      typedef typename covariant<TENSOR,ILIST>::type covariant_;
 
       typedef typename mpl::not_< has_repeated_indices<controvariant_> >::type bct_;
       typedef typename mpl::not_< has_repeated_indices<covariant_> > bco_;

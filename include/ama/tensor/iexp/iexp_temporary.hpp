@@ -40,12 +40,16 @@ namespace ama
   {
 
     /* forward declaration */
-    template <typename TENSOR, typename ILIST> class iexp_temporary;
+    template <
+          typename TENSOR /* the tensor indixed */
+        , typename CTLIST /* the controvariant list */
+        , typename COLIST /* the covariant list */
+        > class iexp_temporary;
 
 
     /* specialization of iexp_traits */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_traits < iexp_temporary<TENSOR, ILIST> >
+    template <typename TENSOR, typename CTLIST, typename COLIST>
+    struct iexp_traits < iexp_temporary<TENSOR, CTLIST, COLIST> >
     {
       typedef typename TENSOR::value_type value_type;
 
@@ -54,7 +58,8 @@ namespace ama
       typedef typename TENSOR::controvariant_type controvariant_type;
       typedef typename TENSOR::covariant_type covariant_type;
 
-      typedef ILIST index_list;
+      typedef CTLIST controvariant_list;
+      typedef COLIST covariant_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };
@@ -63,34 +68,46 @@ namespace ama
     /* class declaration */
     template <
           typename TENSOR
-        , typename ILIST /* the list of indices not repeated */
+        , typename CTLIST
+        , typename COLIST
         >
     class iexp_temporary:
-      public iexp_base< iexp_temporary<TENSOR, ILIST> >
+      public iexp_base< iexp_temporary<TENSOR, CTLIST, COLIST> >
     {
     protected:
-      typedef iexp_base< iexp_temporary<TENSOR, ILIST> > base_type;
-      typedef iexp_temporary<TENSOR, ILIST> derived_type;
+      typedef iexp_base< iexp_temporary<TENSOR, CTLIST, COLIST> > base_type;
+      typedef iexp_temporary<TENSOR, CTLIST, COLIST> derived_type;
 
     public:
       typedef typename base_type::value_type value_type;
+      typedef typename base_type::index_list index_list;
 
     protected:
       typedef TENSOR tensor_type;
 
     public:
       /* constructor */
-      explicit iexp_temporary(tensor_type const & t): m_t(t) { }
+      explicit
+      iexp_temporary(tensor_type const & t)
+          : m_t(t)
+      {
+        /* TODO check for TENSOR contro and co are the same of iexp */
+      }
 
       template <typename DERIVED>
-      explicit iexp_temporary(tensor_base<DERIVED> const & t): m_t(t) { }
+      explicit
+      iexp_temporary(tensor_base<DERIVED> const & t)
+          : m_t(t)
+      {
+        /* TODO check for TENSOR contro and co are the same of iexp */
+      }
 
     public:
       /* retrieve the value */
       template <typename IMAP>
       value_type at() const
       {
-        typedef typename index_reorder<IMAP, ILIST>::type ilist;
+        typedef typename index_reorder<IMAP, index_list>::type ilist;
 
         return m_t.template at<ilist>();
       }

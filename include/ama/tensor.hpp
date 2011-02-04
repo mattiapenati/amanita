@@ -34,7 +34,7 @@
 #include <ama/tensor/get.hpp>
 #include <ama/tensor/iexp.hpp>
 #include <ama/tensor/index.hpp>
-#include <ama/tensor/mul.hpp>
+//#include <ama/tensor/mul.hpp>
 #include <ama/tensor/operator.hpp>
 #include <ama/tensor/outer.hpp>
 #include <ama/tensor/tensor.hpp>

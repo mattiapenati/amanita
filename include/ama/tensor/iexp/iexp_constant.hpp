@@ -39,12 +39,16 @@ namespace ama
   {
 
     /* forward declaration */
-    template <typename TENSOR, typename ILIST> class iexp_constant;
+    template <
+          typename TENSOR /* the tensor indixed */
+        , typename CTLIST /* the controvariant list */
+        , typename COLIST /* the covariant list */
+        > class iexp_constant;
 
 
     /* specialization of iexp_traits */
-    template <typename TENSOR, typename ILIST>
-    struct iexp_traits < iexp_constant<TENSOR, ILIST> >
+    template <typename TENSOR, typename CTLIST, typename COLIST>
+    struct iexp_traits < iexp_constant<TENSOR, CTLIST, COLIST> >
     {
       typedef typename TENSOR::value_type value_type;
 
@@ -53,23 +57,25 @@ namespace ama
       typedef typename TENSOR::controvariant_type controvariant_type;
       typedef typename TENSOR::covariant_type covariant_type;
 
-      typedef ILIST index_list;
+      typedef CTLIST controvariant_list;
+      typedef COLIST covariant_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };
 
 
     /* class declaration */
-    template <typename TENSOR, typename ILIST>
+    template <typename TENSOR, typename CTLIST, typename COLIST>
     class iexp_constant:
-      public iexp_base< iexp_constant<TENSOR, ILIST> >
+      public iexp_base< iexp_constant<TENSOR, CTLIST, COLIST> >
     {
     protected:
-      typedef iexp_base< iexp_constant<TENSOR, ILIST> > base_type;
-      typedef iexp_constant<TENSOR, ILIST> derived_type;
+      typedef iexp_base< iexp_constant<TENSOR, CTLIST, COLIST> > base_type;
+      typedef iexp_constant<TENSOR, CTLIST, COLIST> derived_type;
 
     public:
       typedef typename base_type::value_type value_type;
+      typedef typename base_type::index_list index_list;
 
     protected:
       typedef TENSOR tensor_type;
@@ -83,7 +89,8 @@ namespace ama
       template <typename IMAP>
       value_type at() const
       {
-        typedef typename index_reorder<IMAP, ILIST>::type ilist;
+        /* reorder the indices */
+        typedef typename index_reorder<IMAP, index_list>::type ilist;
 
         return m_t.template at<ilist>();
       }

@@ -42,7 +42,7 @@ namespace ama
             tensor_::iexp_base<RIGHT> const & right)
   {
     typedef typename tensor_::mul_calculator<LEFT, RIGHT>::type what;
-    return tensor_::mul_factory<what>::template apply<void>(left.derived(), right.derived());
+    return tensor_::mul_factory<what>::template apply<LEFT, RIGHT>(left.derived(), right.derived());
   }
 
 }

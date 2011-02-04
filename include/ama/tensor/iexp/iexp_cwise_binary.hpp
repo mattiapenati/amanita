@@ -53,7 +53,8 @@ namespace ama
       typedef typename LEFT::controvariant_type controvariant_type;
       typedef typename LEFT::covariant_type covariant_type;
 
-      typedef typename LEFT::index_list index_list;
+      typedef typename LEFT::controvariant_list controvariant_list;
+      typedef typename LEFT::covariant_list covariant_list;
 
       typedef ::boost::mpl::false_ is_assignable;
     };

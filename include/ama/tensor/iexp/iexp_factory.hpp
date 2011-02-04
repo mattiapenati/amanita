@@ -65,15 +65,15 @@ namespace ama
 
 
     /* specialization for mutable index expression */
-    template <typename DERIVED, typename ULIST>
-    struct iexp_factory< iexp_temporary<DERIVED, ULIST> >
+    template <typename DERIVED, typename CTLIST, typename COLIST>
+    struct iexp_factory< iexp_temporary<DERIVED, CTLIST, COLIST> >
     {
       template <typename ILIST, typename TENSOR>
       static
-      iexp_temporary<DERIVED,ULIST>
+      iexp_temporary<DERIVED,CTLIST,COLIST>
       apply(TENSOR const & t)
       {
-        return iexp_temporary<DERIVED,ULIST>(tensor_reducer<TENSOR, ILIST>(t));
+        return iexp_temporary<DERIVED,CTLIST,COLIST>(tensor_reducer<TENSOR, ILIST>(t));
       }
     };
 
@@ -81,15 +81,15 @@ namespace ama
 
 
     /* specialization for mutable index expression */
-    template <typename DERIVED, typename ILIST>
-    struct iexp_factory< iexp_mutable<DERIVED, ILIST> >
+    template <typename DERIVED, typename CTLIST, typename COLIST>
+    struct iexp_factory< iexp_mutable<DERIVED, CTLIST, COLIST> >
     {
       template <typename ULIST>
       static
-      iexp_mutable<DERIVED,ILIST>
+      iexp_mutable<DERIVED,CTLIST,COLIST>
       apply(DERIVED & t)
       {
-        return iexp_mutable<DERIVED,ILIST>(t);
+        return iexp_mutable<DERIVED,CTLIST,COLIST>(t);
       }
     };
 
@@ -97,15 +97,15 @@ namespace ama
 
 
     /* specialization for constant index expression */
-    template <typename DERIVED, typename ILIST>
-    struct iexp_factory< iexp_constant<DERIVED, ILIST> >
+    template <typename DERIVED, typename CTLIST, typename COLIST>
+    struct iexp_factory< iexp_constant<DERIVED, CTLIST, COLIST> >
     {
       template <typename ULIST>
       static
-      iexp_constant<DERIVED,ILIST>
-      apply(DERIVED & t)
+      iexp_constant<DERIVED,CTLIST,COLIST>
+      apply(DERIVED const & t)
       {
-        return iexp_constant<DERIVED,ILIST>(t);
+        return iexp_constant<DERIVED,CTLIST,COLIST>(t);
       }
     };
 

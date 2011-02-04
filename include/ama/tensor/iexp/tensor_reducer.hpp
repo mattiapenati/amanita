@@ -30,8 +30,8 @@
 #define AMA_TENSOR_IEXP_TENSOR_REDUCER_HPP 1
 
 #include <ama/tensor/detail/tensor_base.hpp>
-#include <ama/tensor/iexp/iexp_calculator.hpp>
 #include <ama/tensor/iexp/iexp_constant.hpp>
+#include <ama/tensor/iexp/indices.hpp>
 #include <ama/tensor/iexp/sum.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
@@ -53,11 +53,10 @@ namespace ama
     {
       typedef typename TENSOR::value_type value_type;
 
-      typedef typename repeated_indices<ILIST>::type sum_indeces; /* index of sum */
-
       typedef typename TENSOR::dimension_type dimension_type;
-      typedef ::boost::mpl::size< iexp_controvariant_unique<TENSOR,ILIST> > controvariant_type;
-      typedef ::boost::mpl::size< iexp_covariant_unique<TENSOR,ILIST> > covariant_type;
+
+      typedef ::boost::mpl::size<typename iexp_reduce<TENSOR,ILIST>::controvariant> controvariant_type;
+      typedef ::boost::mpl::size<typename iexp_reduce<TENSOR,ILIST>::covariant> covariant_type;
 
       typedef ::boost::mpl::false_ is_assignable;
       typedef ::boost::mpl::true_ is_temporary;
@@ -65,10 +64,7 @@ namespace ama
 
 
     /* class definition */
-    template <
-          typename TENSOR
-        , typename ILIST /* the list of all indeces */
-        >
+    template <typename TENSOR, typename ILIST>
     class tensor_reducer:
         public tensor_base< tensor_reducer<TENSOR,ILIST> >
     {
@@ -77,7 +73,11 @@ namespace ama
       typedef tensor_reducer<TENSOR,ILIST> derived_type;
 
       typedef TENSOR tensor_type;
-      typedef iexp_constant<TENSOR, ILIST> iexp_type;
+      typedef iexp_constant<
+            TENSOR
+          , typename controvariant<TENSOR, ILIST>::type
+          , typename covariant<TENSOR, ILIST>::type
+          > iexp_type;
 
     public:
       typedef typename base_type::value_type value_type;

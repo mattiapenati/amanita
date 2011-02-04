@@ -39,6 +39,7 @@ namespace ama
     /* forward declaration*/
     template <typename LEFT, typename RIGHT> class mul_outer;
 
+
     /* reduction over all indices */
     template <typename WHAT>
     struct mul_factory
@@ -49,11 +50,22 @@ namespace ama
     };
 
 
+    /* specialization for reduction of product */
+    template <typename TENSOR, typename ILIST>
+    struct mul_factory< iexp_temporary<TENSOR, ILIST> >
+    {
+      template <typename LEFT, typename RIGHT>
+      static
+      iexp_temporary<TENSOR, ILIST> apply(LEFT const & left,
+                                          RIGHT const & right); /* TODO */
+    };
+
+
     /* specialization for outer product */
     template <typename LEFT, typename RIGHT>
     struct mul_factory< mul_outer<LEFT, RIGHT> >
     {
-      template <typename VOID>
+      template <typename T1, typename T2>
       static
       mul_outer<LEFT, RIGHT> apply(LEFT const & left,
                                    RIGHT const & right)
