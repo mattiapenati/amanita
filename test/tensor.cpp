@@ -320,6 +320,13 @@ BOOST_AUTO_TEST_CASE(basic_index)
   BOOST_CHECK_EQUAL((ama::get<0,1>(a2)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3)));
   BOOST_CHECK_EQUAL((ama::get<1,0>(a2)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3)));
   BOOST_CHECK_EQUAL((ama::get<1,1>(a2)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3)));
+
+  a2.idx<ik>() = a3.idx<ijjk>() + a1.idx<ik>();
+
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a2)), (ama::get<0,0,0,0>(a3) + ama::get<0,1,1,0>(a3) + ama::get<0,0>(a1)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a2)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3) + ama::get<0,1>(a1)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a2)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3) + ama::get<1,0>(a1)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a2)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3) + ama::get<1,1>(a1)));
 }
 
 BOOST_AUTO_TEST_CASE(basic_index_linear)
@@ -399,4 +406,100 @@ BOOST_AUTO_TEST_CASE(basic_index_linear)
   BOOST_CHECK_EQUAL(a2(0,1), (a3(0,0,0,1) + a3(0,1,1,1)));
   BOOST_CHECK_EQUAL(a2(1,0), (a3(1,0,0,0) + a3(1,1,1,0)));
   BOOST_CHECK_EQUAL(a2(1,1), (a3(1,0,0,1) + a3(1,1,1,1)));
+
+  a2(i,k) = a3(i,j,j,k) + a1(i,k);
+
+  BOOST_CHECK_EQUAL(a2(0,0), (a3(0,0,0,0) + a3(0,1,1,0) + a1(0,0)));
+  BOOST_CHECK_EQUAL(a2(0,1), (a3(0,0,0,1) + a3(0,1,1,1) + a1(0,1)));
+  BOOST_CHECK_EQUAL(a2(1,0), (a3(1,0,0,0) + a3(1,1,1,0) + a1(1,0)));
+  BOOST_CHECK_EQUAL(a2(1,1), (a3(1,0,0,1) + a3(1,1,1,1) + a1(1,1)));
+}
+
+BOOST_AUTO_TEST_CASE(basic_mul)
+{
+  typedef ama::index<'i'> i;
+  typedef ama::index<'j'> j;
+  typedef ama::index<'k'> k;
+
+  typedef boost::mpl::vector<i> i_;
+  typedef boost::mpl::vector<j> j_;
+
+  typedef boost::mpl::vector<i,j> ij;
+  typedef boost::mpl::vector<j,k> jk;
+  typedef boost::mpl::vector<i,k> ik;
+
+  typedef boost::mpl::vector<i,j,j,k> ijjk;
+
+  ama::tensor<float, 2, 1, 1> a1, a2, a3;
+  ama::tensor<float, 2, 1, 0> v;
+  ama::tensor<float, 2, 0, 1> w;
+
+  ama::get<0>(v) = 1.0;
+  ama::get<1>(v) = 1.1;
+
+  ama::get<0>(w) = 2.0;
+  ama::get<1>(w) = 2.2;
+
+  ama::get<0,0>(a2) = 3.1;
+  ama::get<0,1>(a2) = 3.2;
+  ama::get<1,0>(a2) = 3.3;
+  ama::get<1,1>(a2) = 3.4;
+
+  a1.idx<ij>() = v.idx<i_>() * w.idx<j_>();
+
+  float d = v.idx<i_>() * w.idx<i_>();
+
+  a3.idx<ik>() = a1.idx<ij>() * a2.idx<jk>();
+
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a1)), (ama::get<0>(v) * ama::get<0>(w)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a1)), (ama::get<0>(v) * ama::get<1>(w)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a1)), (ama::get<1>(v) * ama::get<0>(w)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a1)), (ama::get<1>(v) * ama::get<1>(w)));
+
+  BOOST_CHECK_EQUAL(d, (ama::get<0>(v) * ama::get<0>(w) + ama::get<1>(v) * ama::get<1>(w)));
+
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a3)), (ama::get<0,0>(a1) * ama::get<0,0>(a2) + ama::get<0,1>(a1) * ama::get<1,0>(a2)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a3)), (ama::get<0,0>(a1) * ama::get<0,1>(a2) + ama::get<0,1>(a1) * ama::get<1,1>(a2)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a3)), (ama::get<1,0>(a1) * ama::get<0,0>(a2) + ama::get<1,1>(a1) * ama::get<1,0>(a2)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a3)), (ama::get<1,0>(a1) * ama::get<0,1>(a2) + ama::get<1,1>(a1) * ama::get<1,1>(a2)));
+}
+
+BOOST_AUTO_TEST_CASE(basic_mul_2)
+{
+  ama::index<'i'> i;
+  ama::index<'j'> j;
+  ama::index<'k'> k;
+
+  ama::tensor<float, 2, 1, 1> a1, a2, a3;
+  ama::tensor<float, 2, 1, 0> v;
+  ama::tensor<float, 2, 0, 1> w;
+
+  v(0) = 1.0;
+  v(1) = 1.1;
+
+  w(0) = 2.0;
+  w(1) = 2.2;
+
+  a2(0,0) = 3.1;
+  a2(0,1) = 3.2;
+  a2(1,0) = 3.3;
+  a2(1,1) = 3.4;
+
+  a1(i,j) = v(i) * w(j);
+
+  float d = v(i) * w(i);
+
+  a3(i,k) = a1(i,j) * a2(j,k);
+
+  BOOST_CHECK_EQUAL(a1(0,0), v(0) * w(0));
+  BOOST_CHECK_EQUAL(a1(0,1), v(0) * w(1));
+  BOOST_CHECK_EQUAL(a1(1,0), v(1) * w(0));
+  BOOST_CHECK_EQUAL(a1(1,1), v(1) * w(1));
+
+  BOOST_CHECK_EQUAL(d, (v(0) * w(0) + v(1) * w(1)));
+
+  BOOST_CHECK_EQUAL(a3(0,0), (a1(0,0) * a2(0,0) + a1(0,1) * a2(1,0)));
+  BOOST_CHECK_EQUAL(a3(0,1), (a1(0,0) * a2(0,1) + a1(0,1) * a2(1,1)));
+  BOOST_CHECK_EQUAL(a3(1,0), (a1(1,0) * a2(0,0) + a1(1,1) * a2(1,0)));
+  BOOST_CHECK_EQUAL(a3(1,1), (a1(1,0) * a2(0,1) + a1(1,1) * a2(1,1)));
 }
