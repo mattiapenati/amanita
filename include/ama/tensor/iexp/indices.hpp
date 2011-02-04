@@ -81,6 +81,9 @@ namespace ama
             , mpl::push_back<mpl::_1, mpl::_2>
             > { };
 
+
+
+
     /* reduce the indices */
     template <typename CTLIST, typename COLIST>
     struct reduce
@@ -94,6 +97,7 @@ namespace ama
                 , mpl::push_back<mpl::_1, mpl::_2>
                 >
           >::type controvariant;
+
       typedef typename mpl::fold<
             COLIST
           , mpl::vector0<>
@@ -105,19 +109,32 @@ namespace ama
           >::type covariant;
     };
 
+
+
+
     /* given the tensor and the list compute the reduced */
     template <typename TENSOR, typename ILIST>
     struct iexp_reduce
     {
-      typedef reduce<
-            typename controvariant<TENSOR, ILIST>::type
-          , typename covariant<TENSOR, ILIST>::type
-          > reduce;
+      typedef typename controvariant<TENSOR, ILIST>::type controvariant_;
+      typedef typename covariant<TENSOR, ILIST>::type covariant_;
+
+      typedef reduce<controvariant_, covariant_> reduce;
 
       typedef typename reduce::controvariant controvariant;
       typedef typename reduce::covariant covariant;
 
-      /* TODO typedef typename to_reduce; */
+      typedef typename mpl::fold<covariant, controvariant, mpl::push_back<mpl::_1, mpl::_2> >::type index_list;
+
+      typedef typename mpl::fold<
+            controvariant_
+          , mpl::vector0<>
+          , mpl::if_<
+                  mpl::contains<covariant_, mpl::_2>
+                , mpl::push_back<mpl::_1, mpl::_2>
+                , mpl::_1
+                >
+          >::type reduce_list;
 
       typedef typename TENSOR::value_type value_type;
       typedef typename TENSOR::dimension_type dimension_type;

@@ -84,45 +84,8 @@ namespace ama
                 >
             >::type { };
 
-    /* from a indices list compute the list of not-repeated */
-    template <typename ILIST>
-    struct not_repeated_indices:
-        mpl::fold<
-              ILIST
-            , mpl::vector0<>
-            , mpl::if_<
-                    mpl::equal_to<
-                          mpl::count<ILIST, mpl::_2>
-                        , mpl::size_t<1>
-                        >
-                  , mpl::push_back<mpl::_1, mpl::_2>
-                  , mpl::_1
-                  >
-            >::type { };
 
-    /* from a indices list compute the list of repeated */
-    template <typename ILIST>
-    struct repeated_indices:
-        mpl::fold<
-              ILIST
-            , mpl::vector0<>
-            , mpl::if_<
-                    mpl::and_<
-                          mpl::greater<
-                                mpl::count<ILIST, mpl::_2>
-                              , mpl::size_t<1>
-                              >
-                        , mpl::not_<
-                                mpl::contains<
-                                mpl::_1
-                              , mpl::_2
-                              >
-                              >
-                        >
-                  , mpl::push_back<mpl::_1, mpl::_2>
-                  , mpl::_1
-                  >
-            >::type { };
+
 
     /* check if all indices are repeated */
     template <typename ILIST>
@@ -138,6 +101,9 @@ namespace ama
                       >
                 >
             >::type { };
+
+
+
 
     /* compute the return type of an iexp expression */
     template <typename TENSOR, typename ILIST, typename CONST>

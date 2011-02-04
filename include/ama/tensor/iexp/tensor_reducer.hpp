@@ -93,8 +93,8 @@ namespace ama
       {
         namespace mpl = ::boost::mpl;
 
-        typedef typename not_repeated_indices<ILIST>::type indices; /* other indices */
-        typedef typename repeated_indices<ILIST>::type sum_indices; /* index of sum */
+        typedef typename iexp_reduce<TENSOR,ILIST>::index_list indices; /* other indices */
+        typedef typename iexp_reduce<TENSOR,ILIST>::reduce_list sum_indices; /* index of sum */
 
         BOOST_MPL_ASSERT_MSG(
               (mpl::equal_to< mpl::size<IND> , mpl::size<indices> >::value)
