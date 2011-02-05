@@ -119,10 +119,10 @@ namespace ama
       typedef typename controvariant<TENSOR, ILIST>::type controvariant_;
       typedef typename covariant<TENSOR, ILIST>::type covariant_;
 
-      typedef reduce<controvariant_, covariant_> reduce;
+      typedef reduce<controvariant_, covariant_> reduce_type;
 
-      typedef typename reduce::controvariant controvariant;
-      typedef typename reduce::covariant covariant;
+      typedef typename reduce_type::controvariant controvariant;
+      typedef typename reduce_type::covariant covariant;
 
       typedef typename mpl::fold<covariant, controvariant, mpl::push_back<mpl::_1, mpl::_2> >::type index_list;
 
