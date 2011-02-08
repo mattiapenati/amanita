@@ -29,8 +29,14 @@
 #ifndef AMA_TENSOR_IEXP_IS_SAME_IEXP_HPP
 #define AMA_TENSOR_IEXP_IS_SAME_IEXP_HPP 1
 
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/contains.hpp>
 #include <boost/mpl/equal.hpp>
+#include <boost/mpl/inserter.hpp>
+#include <boost/mpl/pair.hpp>
+#include <boost/mpl/placeholders.hpp>
+#include <boost/mpl/transform.hpp>
 
 namespace ama
 {
@@ -38,6 +44,27 @@ namespace ama
   {
 
     namespace mpl = ::boost::mpl;
+
+    template <
+          typename ILIST1
+        , typename ILIST2
+        >
+    struct is_same_ilist:
+        mpl::transform<
+              ILIST1
+            , ILIST2
+            , mpl::and_<
+                    mpl::contains<ILIST2, mpl::_1>
+                  , mpl::contains<ILIST1, mpl::_2>
+                  >
+            , mpl::inserter<
+                    mpl::true_
+                  , mpl::and_<
+                          mpl::_1
+                        , mpl::_2
+                        >
+                  >
+            >::type { };
 
     template <typename LEFT, typename RIGHT>
     struct is_same_iexp:
@@ -58,10 +85,17 @@ namespace ama
                     typename LEFT::covariant_type
                   , typename RIGHT::covariant_type
                   >
-            >
-    {
-      /* TODO to finish */
-    };
+            , typename mpl::and_<
+                    is_same_ilist<
+                          typename LEFT::controvariant_list
+                        , typename RIGHT::controvariant_list
+                        >
+                  , is_same_ilist<
+                          typename LEFT::covariant_list
+                        , typename RIGHT::covariant_list
+                        >
+                  >::type
+            > { };
 
   }
 }

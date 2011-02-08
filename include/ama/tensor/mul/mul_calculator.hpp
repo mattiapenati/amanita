@@ -121,7 +121,7 @@ namespace ama
               , mul_outer<LEFT, RIGHT>
               >
     {
-      /* TODO check indices */
+      /* TODO check indices the repeated indices must be in different part */
     };
 
   }

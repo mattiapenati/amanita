@@ -249,9 +249,11 @@ BOOST_AUTO_TEST_CASE(basic_index)
 
   typedef boost::mpl::vector<i,j,j,k> ijjk;
 
-  ama::tensor<float, 2, 1, 1> a1;
-  ama::tensor<float, 2, 1, 1> a2;
+  ama::tensor<float, 2, 2, 0> a1;
+  ama::tensor<float, 2, 2, 0> a2;
   ama::tensor<float, 2, 2, 2> a3;
+  ama::tensor<float, 2, 1, 1> a4;
+  ama::tensor<float, 2, 1, 1> a5;
 
   ama::get<0,0>(a1) = 2.2;
   ama::get<0,1>(a1) = 2.1;
@@ -274,6 +276,13 @@ BOOST_AUTO_TEST_CASE(basic_index)
   ama::get<1,1,0,1>(a3) = 1.1101;
   ama::get<1,1,1,0>(a3) = 1.1110;
   ama::get<1,1,1,1>(a3) = 1.1111;
+
+  ama::get<0,0>(a4) = 2.2;
+  ama::get<0,1>(a4) = 2.1;
+  ama::get<1,0>(a4) = 1.2;
+  ama::get<1,1>(a4) = 1.1;
+
+  a5 = a4;
 
   a2.idx<ij>() = a1.idx<ji>();
 
@@ -310,23 +319,23 @@ BOOST_AUTO_TEST_CASE(basic_index)
   BOOST_CHECK_EQUAL((ama::get<1,0>(a2)), 0.5f * (ama::get<1,0>(a1) - ama::get<0,1>(a1)));
   BOOST_CHECK_EQUAL((ama::get<1,1>(a2)), 0.5f * (ama::get<1,1>(a1) - ama::get<1,1>(a1)));
 
-  float v = a1.idx<ii>();
+  float v = a4.idx<ii>();
 
-  BOOST_CHECK_EQUAL(v, (ama::get<0,0>(a1) + ama::get<1,1>(a1)));
+  BOOST_CHECK_EQUAL(v, (ama::get<0,0>(a4) + ama::get<1,1>(a4)));
 
-  a2.idx<ik>() = a3.idx<ijjk>();
+  a4.idx<ik>() = a3.idx<ijjk>();
 
-  BOOST_CHECK_EQUAL((ama::get<0,0>(a2)), (ama::get<0,0,0,0>(a3) + ama::get<0,1,1,0>(a3)));
-  BOOST_CHECK_EQUAL((ama::get<0,1>(a2)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3)));
-  BOOST_CHECK_EQUAL((ama::get<1,0>(a2)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3)));
-  BOOST_CHECK_EQUAL((ama::get<1,1>(a2)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3)));
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a4)), (ama::get<0,0,0,0>(a3) + ama::get<0,1,1,0>(a3)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a4)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a4)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a4)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3)));
 
-  a2.idx<ik>() = a3.idx<ijjk>() + a1.idx<ik>();
+  a4.idx<ik>() = a3.idx<ijjk>() + a5.idx<ik>();
 
-  BOOST_CHECK_EQUAL((ama::get<0,0>(a2)), (ama::get<0,0,0,0>(a3) + ama::get<0,1,1,0>(a3) + ama::get<0,0>(a1)));
-  BOOST_CHECK_EQUAL((ama::get<0,1>(a2)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3) + ama::get<0,1>(a1)));
-  BOOST_CHECK_EQUAL((ama::get<1,0>(a2)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3) + ama::get<1,0>(a1)));
-  BOOST_CHECK_EQUAL((ama::get<1,1>(a2)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3) + ama::get<1,1>(a1)));
+  BOOST_CHECK_EQUAL((ama::get<0,0>(a4)), (ama::get<0,0,0,0>(a3) + ama::get<0,1,1,0>(a3) + ama::get<0,0>(a5)));
+  BOOST_CHECK_EQUAL((ama::get<0,1>(a4)), (ama::get<0,0,0,1>(a3) + ama::get<0,1,1,1>(a3) + ama::get<0,1>(a5)));
+  BOOST_CHECK_EQUAL((ama::get<1,0>(a4)), (ama::get<1,0,0,0>(a3) + ama::get<1,1,1,0>(a3) + ama::get<1,0>(a5)));
+  BOOST_CHECK_EQUAL((ama::get<1,1>(a4)), (ama::get<1,0,0,1>(a3) + ama::get<1,1,1,1>(a3) + ama::get<1,1>(a5)));
 }
 
 BOOST_AUTO_TEST_CASE(basic_index_linear)
@@ -335,9 +344,11 @@ BOOST_AUTO_TEST_CASE(basic_index_linear)
   ama::index<'j'> j;
   ama::index<'k'> k;
 
-  ama::tensor<float, 2, 1, 1> a1;
-  ama::tensor<float, 2, 1, 1> a2;
+  ama::tensor<float, 2, 2, 0> a1;
+  ama::tensor<float, 2, 2, 0> a2;
   ama::tensor<float, 2, 2, 2> a3;
+  ama::tensor<float, 2, 1, 1> a4;
+  ama::tensor<float, 2, 1, 1> a5;
 
   a1(0,0) = 2.2;
   a1(0,1) = 2.1;
@@ -360,6 +371,13 @@ BOOST_AUTO_TEST_CASE(basic_index_linear)
   a3(1,1,0,1) = 1.1101;
   a3(1,1,1,0) = 1.1110;
   a3(1,1,1,1) = 1.1111;
+
+  a4(0,0) = 2.2;
+  a4(0,1) = 2.1;
+  a4(1,0) = 1.2;
+  a4(1,0) = 1.1;
+
+  a5 = a4;
 
   a2(i,j) = a1(j,i);
 
@@ -396,23 +414,23 @@ BOOST_AUTO_TEST_CASE(basic_index_linear)
   BOOST_CHECK_EQUAL(a2(1,0), 0.5f * (a1(1,0) - a1(0,1)));
   BOOST_CHECK_EQUAL(a2(1,1), 0.5f * (a1(1,1) - a1(1,1)));
 
-  float v = a1(i,i);
+  float v = a4(i,i);
 
-  BOOST_CHECK_EQUAL(v, (a1(0,0) + a1(1,1)));
+  BOOST_CHECK_EQUAL(v, (a4(0,0) + a4(1,1)));
 
-  a2(i,k) = a3(i,j,j,k);
+  a4(i,k) = a3(i,j,j,k);
 
-  BOOST_CHECK_EQUAL(a2(0,0), (a3(0,0,0,0) + a3(0,1,1,0)));
-  BOOST_CHECK_EQUAL(a2(0,1), (a3(0,0,0,1) + a3(0,1,1,1)));
-  BOOST_CHECK_EQUAL(a2(1,0), (a3(1,0,0,0) + a3(1,1,1,0)));
-  BOOST_CHECK_EQUAL(a2(1,1), (a3(1,0,0,1) + a3(1,1,1,1)));
+  BOOST_CHECK_EQUAL(a4(0,0), (a3(0,0,0,0) + a3(0,1,1,0)));
+  BOOST_CHECK_EQUAL(a4(0,1), (a3(0,0,0,1) + a3(0,1,1,1)));
+  BOOST_CHECK_EQUAL(a4(1,0), (a3(1,0,0,0) + a3(1,1,1,0)));
+  BOOST_CHECK_EQUAL(a4(1,1), (a3(1,0,0,1) + a3(1,1,1,1)));
 
-  a2(i,k) = a3(i,j,j,k) + a1(i,k);
+  a4(i,k) = a3(i,j,j,k) + a5(i,k);
 
-  BOOST_CHECK_EQUAL(a2(0,0), (a3(0,0,0,0) + a3(0,1,1,0) + a1(0,0)));
-  BOOST_CHECK_EQUAL(a2(0,1), (a3(0,0,0,1) + a3(0,1,1,1) + a1(0,1)));
-  BOOST_CHECK_EQUAL(a2(1,0), (a3(1,0,0,0) + a3(1,1,1,0) + a1(1,0)));
-  BOOST_CHECK_EQUAL(a2(1,1), (a3(1,0,0,1) + a3(1,1,1,1) + a1(1,1)));
+  BOOST_CHECK_EQUAL(a4(0,0), (a3(0,0,0,0) + a3(0,1,1,0) + a5(0,0)));
+  BOOST_CHECK_EQUAL(a4(0,1), (a3(0,0,0,1) + a3(0,1,1,1) + a5(0,1)));
+  BOOST_CHECK_EQUAL(a4(1,0), (a3(1,0,0,0) + a3(1,1,1,0) + a5(1,0)));
+  BOOST_CHECK_EQUAL(a4(1,1), (a3(1,0,0,1) + a3(1,1,1,1) + a5(1,1)));
 }
 
 BOOST_AUTO_TEST_CASE(basic_mul)

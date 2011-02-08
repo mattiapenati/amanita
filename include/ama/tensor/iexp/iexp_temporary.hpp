@@ -32,6 +32,8 @@
 #include <ama/tensor/detail/tensor_base.hpp>
 #include <ama/tensor/iexp/index_reorder.hpp>
 #include <ama/tensor/iexp/iexp_base.hpp>
+#include <ama/tensor/iexp/is_same_iexp.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 
 namespace ama
@@ -79,6 +81,9 @@ namespace ama
       typedef typename base_type::value_type value_type;
       typedef typename base_type::index_list index_list;
 
+      typedef typename base_type::controvariant_type controvariant_type;
+      typedef typename base_type::covariant_type covariant_type;
+
     protected:
       typedef TENSOR tensor_type;
 
@@ -88,7 +93,13 @@ namespace ama
       iexp_temporary(tensor_type const & t)
           : m_t(t)
       {
-        /* TODO check for TENSOR contro and co are the same of iexp */
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::and_<
+                     mpl::equal_to<controvariant_type, typename tensor_type::controvariant_type>
+                   , mpl::equal_to<covariant_type, typename tensor_type::covariant_type>
+                   >::value)
+            , THE_TENSOR_MUST_HAVE_THE_SAME_INDICES_LIST_OF_EXPRESSION
+            , (CTLIST, COLIST));
       }
 
       template <typename DERIVED>
@@ -96,7 +107,13 @@ namespace ama
       iexp_temporary(tensor_base<DERIVED> const & t)
           : m_t(t)
       {
-        /* TODO check for TENSOR contro and co are the same of iexp */
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::and_<
+                     mpl::equal_to<controvariant_type, typename DERIVED::controvariant_type>
+                   , mpl::equal_to<covariant_type, typename DERIVED::covariant_type>
+                   >::value)
+            , THE_TENSOR_MUST_HAVE_THE_SAME_INDICES_LIST_OF_EXPRESSION
+            , (CTLIST, COLIST));
       }
 
     public:

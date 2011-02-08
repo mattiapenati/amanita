@@ -35,7 +35,10 @@
 #include <ama/tensor/iexp/iexp_copy.hpp>
 #include <ama/tensor/iexp/indices.hpp>
 #include <ama/tensor/iexp/sum.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/equal_to.hpp>
+#include <boost/mpl/size.hpp>
 
 namespace ama
 {
@@ -95,6 +98,8 @@ namespace ama
       template <typename ILIST>
       value_type at() const
       {
+        namespace mpl = ::boost::mpl;
+
         typedef typename iexp_reduce<
               typename mul_index<LEFT, RIGHT>::tensor_type
             , typename mul_index<LEFT, RIGHT>::index_list
@@ -104,7 +109,10 @@ namespace ama
             , typename mul_index<LEFT, RIGHT>::index_list
             >::reduce_list sum_indices; /* index of sum */
 
-        /* TODO check size<ILIST> == size<index_list> */
+        BOOST_MPL_ASSERT_MSG(
+              (mpl::equal_to< mpl::size<ILIST> , mpl::size<index_list> >::value)
+            , THE_INDICES_LIST_MUST_HAVE_THE_SAME_SIZE
+            , (ILIST));
 
         /* indeces (not for sum) */
         typedef typename make_imap<index_list, ILIST>::type imap;
