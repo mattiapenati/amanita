@@ -5,5 +5,6 @@ macro(create_new_test TEST_NAME SOURCE_LIST)
 endmacro()
 
 create_new_test(array array.cpp)
+create_new_test(binary_tree binary_tree.cpp)
 create_new_test(multi_array multi_array.cpp)
 create_new_test(tensor tensor.cpp)
